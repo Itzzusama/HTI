@@ -19,7 +19,7 @@ import IMAGES from '../assets/images';
 const Drawer = createDrawerNavigator();
 
 const ASSETS = {
-  headerLogo: IMAGES.headerLogo,
+  headerLogo: IMAGES.footerLogo,
 };
 
 const COLORS = {

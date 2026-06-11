@@ -20,7 +20,7 @@ const COLORS = {
 };
 
 const ASSETS = {
-  headerLogo: IMAGES.headerLogo,
+  headerLogo: IMAGES.footerLogo,
   heroDesktop: IMAGES.makeDifferHeroDesktop,
   heroTablet: IMAGES.makeDifferHeroTablet,
   craft: IMAGES.makeDifferCraft,
@@ -70,7 +70,11 @@ const MakeDifferScreen = ({ navigation }) => {
   const isDesktop = width >= 1025;
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      stickyHeaderIndices={[0]}
+    >
       <Header isTablet={isTablet} navigation={navigation} />
       <Hero isTablet={isTablet} isDesktop={isDesktop} />
       <WhyChooseSection isTablet={isTablet} isDesktop={isDesktop} />

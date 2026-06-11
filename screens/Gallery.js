@@ -20,7 +20,7 @@ const COLORS = {
 };
 
 const ASSETS = {
-  headerLogo: IMAGES.headerLogo,
+  headerLogo: IMAGES.footerLogo,
   hero: IMAGES.pageHero,
 };
 
@@ -61,7 +61,11 @@ const Gallery = ({ navigation }) => {
   const isDesktop = width >= 1025;
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      stickyHeaderIndices={[0]}
+    >
       <Header isTablet={isTablet} navigation={navigation} />
       <PageHero isTablet={isTablet} />
       <GallerySection isTablet={isTablet} isDesktop={isDesktop} />

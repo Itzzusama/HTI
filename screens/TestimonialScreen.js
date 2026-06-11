@@ -66,7 +66,11 @@ const TestimonialScreen = ({ navigation }) => {
   const isTablet = width >= 768;
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      stickyHeaderIndices={[0]}
+    >
       <Header isTablet={isTablet} navigation={navigation} />
       <PageHero isTablet={isTablet} />
       <TestimonialsSection isTablet={isTablet} />
@@ -104,7 +108,7 @@ const Header = ({ isTablet, navigation }) => {
           <View style={styles.menuLine} />
         </TouchableOpacity>
       )}
-      <Image source={IMAGES.headerLogo} style={styles.headerLogo} />
+      <Image source={IMAGES.footerLogo} style={styles.headerLogo} />
       {isTablet ? (
         <View style={styles.navRow}>
           {[

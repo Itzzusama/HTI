@@ -25,7 +25,7 @@ const COLORS = {
 };
 
 const ASSETS = {
-  headerLogo: IMAGES.headerLogo,
+  headerLogo: IMAGES.footerLogo,
   footerLogo: IMAGES.footerLogo,
   hero: IMAGES.homeHero,
   about: IMAGES.homeAbout,
@@ -98,7 +98,11 @@ const HomeScreen = ({ activeScreen = 'Home', onNavigate, navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      stickyHeaderIndices={[0]}
+    >
       <Header isTablet={isTablet} navigation={navigation} />
       <Hero isTablet={isTablet} horizontal={horizontal} />
       <About isTablet={isTablet} horizontal={horizontal} />

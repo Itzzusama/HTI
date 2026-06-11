@@ -60,7 +60,11 @@ const ContactScreen = ({ navigation }) => {
   const isDesktop = width >= 1025;
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      stickyHeaderIndices={[0]}
+    >
       <Header isTablet={isTablet} navigation={navigation} />
       <PageHero title="Contact Us" isTablet={isTablet} />
       <ContactFormSection isTablet={isTablet} isDesktop={isDesktop} />
@@ -99,7 +103,7 @@ const Header = ({ isTablet, navigation }) => {
           <View style={styles.menuLine} />
         </TouchableOpacity>
       )}
-      <Image source={IMAGES.headerLogo} style={styles.headerLogo} />
+      <Image source={IMAGES.footerLogo} style={styles.headerLogo} />
       {isTablet ? (
         <View style={styles.navRow}>
           {[

@@ -21,7 +21,7 @@ const COLORS = {
 };
 
 const ASSETS = {
-  headerLogo: IMAGES.headerLogo,
+  headerLogo: IMAGES.footerLogo,
   hero: IMAGES.pageHero,
 };
 
@@ -51,7 +51,11 @@ const ServiceDetailBase = ({ navigation, data }) => {
   const isDesktop = width >= 1025;
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      stickyHeaderIndices={[0]}
+    >
       <Header isTablet={isTablet} navigation={navigation} />
       <PageHero title={data.title} isTablet={isTablet} />
       <IntroSection data={data} isTablet={isTablet} isDesktop={isDesktop} />
