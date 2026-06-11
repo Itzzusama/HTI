@@ -69,9 +69,15 @@ const bottomStats = [
   'Hair systems fitted',
 ];
 
-const formFields = ['First Name', 'Last Name', 'Email', 'Phone', 'Message'];
+const formFields = [
+  { label: 'First Name', placeholder: 'First Name', half: true },
+  { label: 'Last Name', placeholder: 'Last Name', half: true },
+  { label: 'Email', placeholder: 'Email', half: true },
+  { label: 'Phone', placeholder: 'Phone', half: true },
+  { label: 'Message', placeholder: 'Message', multiline: true },
+];
 
-const HomeScreen = () => {
+const HomeScreen = ({ activeScreen = 'Home', onNavigate = () => {} }) => {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const horizontal = isTablet ? 40 : 20;
@@ -83,7 +89,12 @@ const HomeScreen = () => {
       <About isTablet={isTablet} horizontal={horizontal} />
       <StatsSection isTablet={isTablet} horizontal={horizontal} />
       <Appointment isTablet={isTablet} horizontal={horizontal} />
-      <Footer isTablet={isTablet} horizontal={horizontal} />
+      <Footer
+        isTablet={isTablet}
+        horizontal={horizontal}
+        activeScreen={activeScreen}
+        onNavigate={onNavigate}
+      />
     </ScrollView>
   );
 };
@@ -275,17 +286,31 @@ const Appointment = ({ isTablet, horizontal }) => (
   >
     <View style={styles.appointmentOverlay} />
     <View style={[styles.formCard, isTablet && styles.half]}>
-      <Text style={styles.formTitle}>Fill Out The Form</Text>
-      <View style={styles.formRule} />
-      {formFields.map(field => (
-        <TextInput
-          key={field}
-          placeholder={field}
-          placeholderTextColor="#3F3F3F"
-          multiline={field === 'Message'}
-          style={[styles.input, field === 'Message' && styles.messageInput]}
-        />
-      ))}
+      <Text style={styles.formTitle}>Start Your Hair Transformation Today</Text>
+      <Text style={styles.formIntro}>
+        Share a few details and our friendly specialists will contact you to
+        arrange a private consultation tailored to your hair goals.
+      </Text>
+      <View style={styles.fieldsWrap}>
+        {formFields.map(field => (
+          <View
+            key={field.label}
+            style={[
+              styles.fieldGroup,
+              field.half && isTablet ? styles.fieldHalf : styles.fieldFull,
+            ]}
+          >
+            <Text style={styles.fieldLabel}>{field.label}</Text>
+            <TextInput
+              placeholder={field.placeholder}
+              placeholderTextColor="#3F3F3F"
+              multiline={field.multiline}
+              textAlignVertical={field.multiline ? 'top' : 'center'}
+              style={[styles.input, field.multiline && styles.messageInput]}
+            />
+          </View>
+        ))}
+      </View>
       <TouchableOpacity style={styles.submitButton} activeOpacity={0.85}>
         <Text style={styles.submitText}>Make Appointment</Text>
       </TouchableOpacity>
@@ -317,8 +342,8 @@ const Appointment = ({ isTablet, horizontal }) => (
   </ImageBackground>
 );
 
-const Footer = ({ isTablet, horizontal }) => (
-  <View style={[styles.footer, { paddingHorizontal: horizontal }]}>
+const Footer = ({ isTablet, horizontal, activeScreen, onNavigate }) => (
+  <View style={[styles.footer, { paddingHorizontal: horizontal }]}> 
     <View
       style={[styles.footerTop, { flexDirection: isTablet ? 'row' : 'column' }]}
     >
@@ -361,10 +386,43 @@ const Footer = ({ isTablet, horizontal }) => (
         </View>
       </View>
     </View>
+    <FooterNav
+      items={['Home', 'About Us', 'Contact', 'Testimonials']}
+      activeScreen={activeScreen}
+      onNavigate={onNavigate}
+    />
     <View style={styles.copyright}>
       <Text style={styles.copyrightText}>
         Copyright © 2026 Hairtechnology.co.uk
       </Text>
+    </View>
+  </View>
+);
+
+const FooterNav = ({ items, activeScreen, onNavigate }) => (
+  <View style={styles.footerNav}>
+    <Text style={styles.footerHeading}>Quick Screen Navigation</Text>
+    <View style={styles.footerNavRow}>
+      {items.map(item => (
+        <TouchableOpacity
+          key={item}
+          style={[
+            styles.footerNavButton,
+            activeScreen === item && styles.footerNavButtonActive,
+          ]}
+          activeOpacity={0.8}
+          onPress={() => onNavigate(item)}
+        >
+          <Text
+            style={[
+              styles.footerNavButtonText,
+              activeScreen === item && styles.footerNavButtonTextActive,
+            ]}
+          >
+            {item}
+          </Text>
+        </TouchableOpacity>
+      ))}
     </View>
   </View>
 );
@@ -439,7 +497,7 @@ const styles = StyleSheet.create({
   },
   heroOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(19, 18, 0, 0.66)',
+    backgroundColor: 'rgba(19, 18, 0, 0.72)',
   },
   heroContent: {
     zIndex: 2,
@@ -593,7 +651,7 @@ const styles = StyleSheet.create({
   },
   darkWash: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(51, 51, 51, 0.52)',
+    backgroundColor: 'rgba(19, 18, 0, 0.42)',
   },
   statsHeading: {
     zIndex: 2,
@@ -673,14 +731,12 @@ const styles = StyleSheet.create({
   },
   appointmentOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(51, 51, 51, 0.64)',
+    backgroundColor: 'rgba(19, 18, 0, 0.46)',
   },
   formCard: {
     zIndex: 2,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.offWhite,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E2E2E2',
     padding: 25,
     marginBottom: -32,
     shadowColor: '#000000',
@@ -694,29 +750,52 @@ const styles = StyleSheet.create({
     color: COLORS.blackDeep,
     fontSize: 30,
     fontWeight: '700',
-    lineHeight: 36,
-    textAlign: 'center',
-    marginBottom: 18,
+    lineHeight: 38,
+    marginBottom: 16,
   },
-  formRule: {
-    height: 1,
-    backgroundColor: '#E2E2E2',
-    marginBottom: 20,
+  formIntro: {
+    fontFamily: 'Poppins',
+    color: COLORS.muted,
+    fontSize: 16,
+    lineHeight: 24,
+    marginBottom: 10,
+  },
+  fieldsWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -5,
+    marginTop: 10,
+  },
+  fieldGroup: {
+    paddingHorizontal: 5,
+    marginBottom: 16,
+  },
+  fieldHalf: {
+    width: '50%',
+  },
+  fieldFull: {
+    width: '100%',
+  },
+  fieldLabel: {
+    fontFamily: 'Poppins',
+    color: '#3F3F3F',
+    fontSize: 15,
+    fontWeight: '500',
+    paddingBottom: 5,
   },
   input: {
     backgroundColor: COLORS.white,
     color: '#000000',
     borderRadius: 3,
-    minHeight: 48,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 20,
+    minHeight: 40,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     fontFamily: 'Poppins',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
   },
   messageInput: {
-    minHeight: 110,
+    minHeight: 136,
     textAlignVertical: 'top',
   },
   submitButton: {
@@ -724,16 +803,16 @@ const styles = StyleSheet.create({
     minWidth: 180,
     backgroundColor: COLORS.gold,
     paddingVertical: 16,
-    paddingHorizontal: 25,
+    paddingHorizontal: 30,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 2,
   },
   submitText: {
     color: COLORS.white,
-    fontFamily: 'Urbanist',
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Poppins',
+    fontSize: 15,
+    fontWeight: '500',
   },
   appointmentCopy: {
     zIndex: 2,
@@ -831,6 +910,32 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     lineHeight: 22,
     marginBottom: 9,
+  },
+  footerNav: {
+    marginTop: 28,
+  },
+  footerNavRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  footerNavButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: '#2A2A2A',
+    borderRadius: 999,
+  },
+  footerNavButtonText: {
+    fontFamily: 'Urbanist',
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+  footerNavButtonActive: {
+    backgroundColor: COLORS.gold,
+  },
+  footerNavButtonTextActive: {
+    color: COLORS.black,
   },
   copyright: {
     minHeight: 85,
