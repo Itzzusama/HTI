@@ -54,16 +54,16 @@ const navItems = [
 ];
 
 const topStats = [
-  { label: 'Successful Consultations', value: '0+' },
-  { label: 'Hair & Scalp Treatments', value: '0K' },
-  { label: 'Advanced Hair Solutions', value: '0+' },
-  { label: 'Satisfied Long-Term Clients', value: '0+' },
+  { label: 'Successful Consultations', value: '100+' },
+  { label: 'Hair & Scalp Treatments', value: '15K' },
+  { label: 'Advanced Hair Solutions', value: '15+' },
+  { label: 'Satisfied Long-Term Clients', value: '75+' },
 ];
 
 const bottomStats = [
-  { label: 'Years Experience', value: '0+' },
-  { label: 'Active Clients', value: '0+' },
-  { label: 'Hair systems fitted', value: '0+' },
+  { label: 'Years Experience', value: '30+' },
+  { label: 'Active Clients', value: '350+' },
+  { label: 'Hair systems fitted', value: '20,000+' },
 ];
 
 const formFields = [
@@ -305,20 +305,26 @@ const StatsSection = ({ isTablet, horizontal }) => (
     </View>
 
     <View style={[styles.bottomStats, { paddingHorizontal: horizontal }]}>
-      {bottomStats.map(item => (
+      {bottomStats.map((item, index) => (
         <CounterCard
           key={item.label}
           label={item.label}
           value={item.value}
           compact={!isTablet}
+          fullWidth={index === bottomStats.length - 1}
         />
       ))}
     </View>
   </>
 );
 
-const CounterCard = ({ label, value, compact }) => (
-  <View style={[styles.counterCard, { width: compact ? '48%' : '23%' }]}>
+const CounterCard = ({ label, value, compact, fullWidth = false }) => (
+  <View
+    style={[
+      styles.counterCard,
+      { width: fullWidth ? '100%' : compact ? '48%' : '31.8%' },
+    ]}
+  >
     <Text style={[styles.counterNumber, { fontSize: compact ? 34 : 50 }]}>
       {value}
     </Text>

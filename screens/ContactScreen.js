@@ -270,6 +270,7 @@ const InfoCard = ({ card, isTablet }) => (
       styles.infoCard,
       {
         padding: isTablet ? 50 : 30,
+        paddingBottom: card.title == 'Call Us' && 45,
         alignItems: isTablet ? 'stretch' : 'center',
       },
     ]}
