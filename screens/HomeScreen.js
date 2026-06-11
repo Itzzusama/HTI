@@ -83,7 +83,11 @@ const HomeScreen = ({ activeScreen = 'Home', onNavigate, navigation }) => {
   const horizontal = isTablet ? 40 : 20;
 
   const handleNavigate = (screen) => {
-    if (['Home', 'About Us', 'Testimonials', 'Contact'].includes(screen)) {
+    if (
+      ['Home', 'About Us', 'Services', 'What makes us different', 'Gallery', 'Testimonials', 'Contact'].includes(
+        screen,
+      )
+    ) {
       navigation.navigate(screen);
     } else if (onNavigate) {
       onNavigate(screen);
@@ -109,7 +113,11 @@ const HomeScreen = ({ activeScreen = 'Home', onNavigate, navigation }) => {
 
 const Header = ({ isTablet, navigation }) => {
   const handleNavPress = (item) => {
-    if (['Home', 'About Us', 'Testimonials', 'Contact'].includes(item)) {
+    if (
+      ['Home', 'About Us', 'Services', 'What makes us different', 'Gallery', 'Testimonials', 'Contact'].includes(
+        item,
+      )
+    ) {
       navigation.navigate(item);
     }
   };

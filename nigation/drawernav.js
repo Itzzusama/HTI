@@ -6,8 +6,14 @@ import {
 } from '@react-navigation/drawer';
 import HomeScreen from '../screens/HomeScreen';
 import AboutUsScreen from '../screens/AboutUsScreen';
+import ServicesScreen from '../screens/Services';
+import MakeDifferScreen from '../screens/MakeDiffer';
+import GalleryScreen from '../screens/Gallery';
 import TestimonialScreen from '../screens/TestimonialScreen';
 import ContactScreen from '../screens/ContactScreen';
+import HairReplacementScreen from '../screens/HairReplacement';
+import HairEnhancementScreen from '../screens/HairEnhancement';
+import HairConsultationScreen from '../screens/HairConsultation';
 
 const Drawer = createDrawerNavigator();
 
@@ -22,6 +28,12 @@ const COLORS = {
   white: '#FFFFFF',
   muted: '#A6A6A6',
 };
+
+const hiddenDrawerRoutes = [
+  'Hair Replacement',
+  'Hair Enhancement',
+  'Hair Consultation',
+];
 
 function CustomDrawerContent(props) {
   const { state, navigation } = props;
@@ -43,6 +55,10 @@ function CustomDrawerContent(props) {
       {/* Drawer navigation links */}
       <View style={styles.menuItemsContainer}>
         {state.routes.map((route, index) => {
+          if (hiddenDrawerRoutes.includes(route.name)) {
+            return null;
+          }
+
           const isFocused = state.index === index;
 
           const onPress = () => {
@@ -90,8 +106,26 @@ export default function DrawerNavigator() {
     >
       <Drawer.Screen name="Home" component={HomeScreen} />
       <Drawer.Screen name="About Us" component={AboutUsScreen} />
+      <Drawer.Screen name="Services" component={ServicesScreen} />
+      <Drawer.Screen
+        name="What makes us different"
+        component={MakeDifferScreen}
+      />
+      <Drawer.Screen name="Gallery" component={GalleryScreen} />
       <Drawer.Screen name="Testimonials" component={TestimonialScreen} />
       <Drawer.Screen name="Contact" component={ContactScreen} />
+      <Drawer.Screen
+        name="Hair Replacement"
+        component={HairReplacementScreen}
+      />
+      <Drawer.Screen
+        name="Hair Enhancement"
+        component={HairEnhancementScreen}
+      />
+      <Drawer.Screen
+        name="Hair Consultation"
+        component={HairConsultationScreen}
+      />
     </Drawer.Navigator>
   );
 }

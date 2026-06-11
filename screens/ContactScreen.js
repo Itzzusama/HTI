@@ -71,7 +71,11 @@ const ContactScreen = ({ navigation }) => {
 
 const Header = ({ isTablet, navigation }) => {
   const handleNavPress = (item) => {
-    if (['Home', 'About Us', 'Testimonials', 'Contact'].includes(item)) {
+    if (
+      ['Home', 'About Us', 'Services', 'What makes us different', 'Gallery', 'Testimonials', 'Contact'].includes(
+        item,
+      )
+    ) {
       navigation.navigate(item);
     }
   };
