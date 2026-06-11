@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import IMAGES from '../assets/images';
 
 const COLORS = {
@@ -66,6 +67,8 @@ const ServiceDetailBase = ({ navigation, data }) => {
 };
 
 const Header = ({ isTablet, navigation }) => {
+  const insets = useSafeAreaInsets();
+
   const handleNavPress = item => {
     if (publicRoutes.includes(item)) {
       navigation.navigate(item);
@@ -73,7 +76,12 @@ const Header = ({ isTablet, navigation }) => {
   };
 
   return (
-    <View style={styles.header}>
+    <View
+      style={[
+        styles.header,
+        { paddingTop: insets.top, minHeight: 102 + insets.top },
+      ]}
+    >
       {!isTablet && (
         <TouchableOpacity
           style={styles.menuButton}

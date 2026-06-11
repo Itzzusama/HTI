@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Image,
   ImageBackground,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,6 +11,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IMAGES from '../assets/images';
 
 const COLORS = {
@@ -27,6 +29,17 @@ const COLORS = {
 const ASSETS = {
   hero: IMAGES.pageHero,
   infoBackground: IMAGES.contactInfoBackground,
+  mapPreview: {
+    uri: 'https://staticmap.openstreetmap.de/staticmap.php?center=55.8633259,-4.2584799&zoom=15&size=900x620&maptype=mapnik&markers=55.8633259,-4.2584799,lightblue1',
+  },
+};
+
+const LOCATION = {
+  latitude: 55.8633259,
+  longitude: -4.2584799,
+  address: '2nd Floor, 79 West Regent Street, Glasgow G2 2AW',
+  mapsUrl:
+    'https://www.google.com/maps/search/?api=1&query=55.8633259,-4.2584799',
 };
 
 const formFields = [
@@ -74,6 +87,8 @@ const ContactScreen = ({ navigation }) => {
 };
 
 const Header = ({ isTablet, navigation }) => {
+  const insets = useSafeAreaInsets();
+
   const handleNavPress = item => {
     if (
       [
@@ -91,7 +106,12 @@ const Header = ({ isTablet, navigation }) => {
   };
 
   return (
-    <View style={styles.header}>
+    <View
+      style={[
+        styles.header,
+        { paddingTop: insets.top, minHeight: 102 + insets.top },
+      ]}
+    >
       {!isTablet && (
         <TouchableOpacity
           style={styles.menuButton}
@@ -156,86 +176,100 @@ const PageHero = ({ title, isTablet }) => (
   </ImageBackground>
 );
 
-const ContactFormSection = ({ isTablet, isDesktop }) => (
-  <View
-    style={[
-      styles.formSection,
-      {
-        flexDirection: isDesktop ? 'row' : 'column',
-        paddingHorizontal: isDesktop ? 16 : isTablet ? 32 : 20,
-        paddingVertical: isDesktop ? 112 : isTablet ? 48 : 32,
-      },
-    ]}
-  >
+const ContactFormSection = ({ isTablet, isDesktop }) => {
+  const openMap = () => {
+    Linking.openURL(LOCATION.mapsUrl);
+  };
+
+  return (
     <View
       style={[
-        styles.formPanel,
+        styles.formSection,
         {
-          padding: isTablet ? 48 : 25,
-          width: isDesktop ? '50%' : '100%',
+          flexDirection: isDesktop ? 'row' : 'column',
+          paddingHorizontal: isDesktop ? 16 : isTablet ? 32 : 20,
+          paddingVertical: isDesktop ? 112 : isTablet ? 48 : 32,
         },
       ]}
     >
-      <Text style={[styles.formHeading, { fontSize: isTablet ? 40 : 30 }]}>
-        Start Your Hair Transformation Today
-      </Text>
-      <Text style={styles.formIntro}>
-        Do you have questions or are you ready to begin your journey? Our
-        friendly specialists are here to guide you with expert advice,
-        personalised solutions and complete discretion. Get in touch today to
-        book your free consultation.
-      </Text>
+      <View
+        style={[
+          styles.formPanel,
+          {
+            padding: isTablet ? 48 : 25,
+            width: isDesktop ? '50%' : '100%',
+          },
+        ]}
+      >
+        <Text style={[styles.formHeading, { fontSize: isTablet ? 40 : 30 }]}>
+          Start Your Hair Transformation Today
+        </Text>
+        <Text style={styles.formIntro}>
+          Do you have questions or are you ready to begin your journey? Our
+          friendly specialists are here to guide you with expert advice,
+          personalised solutions and complete discretion. Get in touch today to
+          book your free consultation.
+        </Text>
 
-      <View style={styles.fieldsWrap}>
-        {formFields.map(field => (
-          <View
-            key={field.label}
-            style={[
-              styles.fieldGroup,
-              field.half && isDesktop ? styles.fieldHalf : styles.fieldFull,
-            ]}
-          >
-            <Text style={styles.fieldLabel}>{field.label}</Text>
-            <TextInput
-              placeholder={field.placeholder}
-              placeholderTextColor={COLORS.label}
-              multiline={field.multiline}
-              textAlignVertical={field.multiline ? 'top' : 'center'}
-              style={[styles.input, field.multiline && styles.messageInput]}
-            />
-          </View>
-        ))}
+        <View style={styles.fieldsWrap}>
+          {formFields.map(field => (
+            <View
+              key={field.label}
+              style={[
+                styles.fieldGroup,
+                field.half && isDesktop ? styles.fieldHalf : styles.fieldFull,
+              ]}
+            >
+              <Text style={styles.fieldLabel}>{field.label}</Text>
+              <TextInput
+                placeholder={field.placeholder}
+                placeholderTextColor={COLORS.label}
+                multiline={field.multiline}
+                textAlignVertical={field.multiline ? 'top' : 'center'}
+                style={[styles.input, field.multiline && styles.messageInput]}
+              />
+            </View>
+          ))}
+        </View>
+
+        <TouchableOpacity style={styles.submitButton} activeOpacity={0.82}>
+          <Text style={styles.submitIcon}>@</Text>
+          <Text style={styles.submitText}>Send Message</Text>
+        </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.submitButton} activeOpacity={0.82}>
-        <Text style={styles.submitIcon}>@</Text>
-        <Text style={styles.submitText}>Send Message</Text>
+      <TouchableOpacity
+        activeOpacity={0.88}
+        onPress={openMap}
+        style={[
+          styles.mapPanel,
+          {
+            width: isDesktop ? '50%' : '100%',
+            minHeight: isDesktop ? 640 : isTablet ? 420 : 300,
+          },
+        ]}
+      >
+        <ImageBackground
+          source={ASSETS.mapPreview}
+          resizeMode="cover"
+          imageStyle={styles.mapImage}
+          style={styles.mapImageShell}
+        >
+          <View style={styles.mapWash} />
+          <View style={styles.mapMarker}>
+            <Text style={styles.mapMarkerText}>⌖</Text>
+          </View>
+          <View style={styles.mapInfoCard}>
+            <Text style={styles.mapTitle}>
+              2nd Floor, 79 West Regent Street
+            </Text>
+            <Text style={styles.mapAddress}>Glasgow G2 2AW</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
     </View>
-
-    <View
-      style={[
-        styles.mapPanel,
-        {
-          width: isDesktop ? '50%' : '100%',
-          minHeight: isDesktop ? 640 : isTablet ? 420 : 300,
-        },
-      ]}
-    >
-      <View style={styles.mapWash} />
-      <View style={styles.mapGrid}>
-        {Array.from({ length: 9 }).map((_, index) => (
-          <View key={index} style={styles.mapLine} />
-        ))}
-      </View>
-      <View style={styles.mapMarker}>
-        <Text style={styles.mapMarkerText}>⌖</Text>
-      </View>
-      <Text style={styles.mapTitle}>2nd Floor, 79 West Regent Street</Text>
-      <Text style={styles.mapAddress}>Glasgow G2 2AW</Text>
-    </View>
-  </View>
-);
+  );
+};
 
 const ContactInfoBand = ({ isTablet, isDesktop }) => (
   <ImageBackground
@@ -338,6 +372,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
+    // paddingBottom: 20,
   },
   hero: {
     alignItems: 'center',
@@ -461,22 +496,22 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     backgroundColor: '#DDE4E8',
+    shadowColor: '#000000',
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 5,
+  },
+  mapImageShell: {
+    flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+  },
+  mapImage: {
+    borderRadius: 10,
   },
   mapWash: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: '#E9EEF0',
-  },
-  mapGrid: {
-    ...StyleSheet.absoluteFill,
-    opacity: 0.7,
-    justifyContent: 'space-around',
-  },
-  mapLine: {
-    height: 1,
-    backgroundColor: '#C8D0D5',
-    transform: [{ rotate: '-8deg' }],
+    backgroundColor: 'rgba(12, 7, 39, 0.12)',
   },
   mapMarker: {
     width: 48,
@@ -485,7 +520,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.goldButton,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 18,
+    alignSelf: 'center',
   },
   mapMarkerText: {
     color: COLORS.white,
@@ -493,9 +528,18 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: '700',
   },
+  mapInfoCard: {
+    marginTop: 'auto',
+    marginHorizontal: 24,
+    marginBottom: 24,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    borderRadius: 10,
+    backgroundColor: 'rgba(19, 18, 0, 0.78)',
+  },
   mapTitle: {
     fontFamily: 'Poppins',
-    color: COLORS.secondary,
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
     lineHeight: 23,
@@ -503,7 +547,7 @@ const styles = StyleSheet.create({
   },
   mapAddress: {
     fontFamily: 'Poppins',
-    color: COLORS.body,
+    color: COLORS.white,
     fontSize: 14,
     lineHeight: 21,
     textAlign: 'center',
