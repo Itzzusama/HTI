@@ -77,14 +77,22 @@ const formFields = [
   { label: 'Message', placeholder: 'Message', multiline: true },
 ];
 
-const HomeScreen = ({ activeScreen = 'Home', onNavigate = () => {} }) => {
+const HomeScreen = ({ activeScreen = 'Home', onNavigate, navigation }) => {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const horizontal = isTablet ? 40 : 20;
 
+  const handleNavigate = (screen) => {
+    if (['Home', 'About Us', 'Testimonials', 'Contact'].includes(screen)) {
+      navigation.navigate(screen);
+    } else if (onNavigate) {
+      onNavigate(screen);
+    }
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Header isTablet={isTablet} />
+      <Header isTablet={isTablet} navigation={navigation} />
       <Hero isTablet={isTablet} horizontal={horizontal} />
       <About isTablet={isTablet} horizontal={horizontal} />
       <StatsSection isTablet={isTablet} horizontal={horizontal} />
@@ -93,35 +101,51 @@ const HomeScreen = ({ activeScreen = 'Home', onNavigate = () => {} }) => {
         isTablet={isTablet}
         horizontal={horizontal}
         activeScreen={activeScreen}
-        onNavigate={onNavigate}
+        onNavigate={handleNavigate}
       />
     </ScrollView>
   );
 };
 
-const Header = ({ isTablet }) => (
-  <View style={styles.header}>
-    <Image source={{ uri: ASSETS.headerLogo }} style={styles.headerLogo} />
-    {isTablet ? (
-      <View style={styles.navRow}>
-        {navItems.map(item => (
-          <Text
-            key={item}
-            style={[styles.navItem, item === 'Home' && styles.navItemActive]}
-          >
-            {item}
-          </Text>
-        ))}
-      </View>
-    ) : (
-      <TouchableOpacity style={styles.menuButton} activeOpacity={0.8}>
-        <View style={styles.menuLine} />
-        <View style={styles.menuLine} />
-        <View style={styles.menuLine} />
-      </TouchableOpacity>
-    )}
-  </View>
-);
+const Header = ({ isTablet, navigation }) => {
+  const handleNavPress = (item) => {
+    if (['Home', 'About Us', 'Testimonials', 'Contact'].includes(item)) {
+      navigation.navigate(item);
+    }
+  };
+
+  return (
+    <View style={styles.header}>
+      {!isTablet && (
+        <TouchableOpacity
+          style={styles.menuButton}
+          activeOpacity={0.8}
+          onPress={() => navigation && navigation.openDrawer()}
+        >
+          <View style={styles.menuLine} />
+          <View style={styles.menuLine} />
+          <View style={styles.menuLine} />
+        </TouchableOpacity>
+      )}
+      <Image source={{ uri: ASSETS.headerLogo }} style={styles.headerLogo} />
+      {isTablet ? (
+        <View style={styles.navRow}>
+          {navItems.map(item => (
+            <TouchableOpacity key={item} onPress={() => handleNavPress(item)}>
+              <Text
+                style={[styles.navItem, item === 'Home' && styles.navItemActive]}
+              >
+                {item}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : (
+        <View style={{ width: 42 }} />
+      )}
+    </View>
+  );
+};
 
 const Hero = ({ isTablet, horizontal }) => (
   <ImageBackground

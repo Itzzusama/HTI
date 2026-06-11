@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  Image,
   ImageBackground,
   ScrollView,
   StyleSheet,
@@ -57,15 +58,56 @@ const testimonials = [
   },
 ];
 
-const TestimonialScreen = () => {
+const TestimonialScreen = ({ navigation }) => {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <Header isTablet={isTablet} navigation={navigation} />
       <PageHero isTablet={isTablet} />
       <TestimonialsSection isTablet={isTablet} />
     </ScrollView>
+  );
+};
+
+const Header = ({ isTablet, navigation }) => {
+  const handleNavPress = (item) => {
+    if (['Home', 'About Us', 'Testimonials', 'Contact'].includes(item)) {
+      navigation.navigate(item);
+    }
+  };
+
+  return (
+    <View style={styles.header}>
+      {!isTablet && (
+        <TouchableOpacity
+          style={styles.menuButton}
+          activeOpacity={0.8}
+          onPress={() => navigation && navigation.openDrawer()}
+        >
+          <View style={styles.menuLine} />
+          <View style={styles.menuLine} />
+          <View style={styles.menuLine} />
+        </TouchableOpacity>
+      )}
+      <Image source={{ uri: 'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-76.png' }} style={styles.headerLogo} />
+      {isTablet ? (
+        <View style={styles.navRow}>
+          {['Home', 'About Us', 'Services', 'What makes us different', 'Gallery', 'Testimonials', 'Contact'].map(item => (
+            <TouchableOpacity key={item} onPress={() => handleNavPress(item)}>
+              <Text
+                style={[styles.navItem, item === 'Testimonials' && styles.navItemActive]}
+              >
+                {item}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : (
+        <View style={{ width: 42 }} />
+      )}
+    </View>
   );
 };
 
@@ -203,6 +245,51 @@ const TestimonialsSection = ({ isTablet }) => {
 };
 
 const styles = StyleSheet.create({
+  header: {
+    backgroundColor: COLORS.white,
+    borderBottomColor: COLORS.accent,
+    borderBottomWidth: 2,
+    minHeight: 102,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerLogo: {
+    width: 150,
+    height: 96,
+    resizeMode: 'contain',
+  },
+  navRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: 28,
+  },
+  navItem: {
+    fontFamily: 'Urbanist',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000000',
+    lineHeight: 21,
+  },
+  navItemActive: {
+    color: COLORS.accent,
+  },
+  menuButton: {
+    width: 42,
+    height: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  menuLine: {
+    width: 25,
+    height: 3,
+    backgroundColor: COLORS.accent,
+    marginVertical: 3,
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
