@@ -1,10 +1,11 @@
 import React from 'react';
 import ServiceDetailBase from './ServiceDetailBase';
+import IMAGES from '../assets/images';
 
 const data = {
   title: 'Hair Enhancement',
   introTitle: 'Hair Enhancement',
-  image: 'https://hairtechnology.co.uk/wp-content/uploads/2026/02/20865.jpg',
+  image: IMAGES.hairEnhancementDetail,
   introParagraphs: [
     'Females experience hair loss and thinning too but this is often different from the typical loss that men can experience. Having said that not all men lose all their hair so for those affected by diffuse or localised thinning, we offer Volumisers and similar procedures, designed to accommodate your own natural growing hair without the need for any form of bonding.',
     'These solutions are design to be with you 24 hours a day, 7 days a week and can be treated just like your own hair.',

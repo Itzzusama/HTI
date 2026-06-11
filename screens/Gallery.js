@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import IMAGES from '../assets/images';
 
 const COLORS = {
   secondary: '#131200',
@@ -19,9 +20,8 @@ const COLORS = {
 };
 
 const ASSETS = {
-  headerLogo:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-76.png',
-  hero: 'https://hairtechnology.co.uk/wp-content/uploads/2026/02/5143.jpg',
+  headerLogo: IMAGES.headerLogo,
+  hero: IMAGES.pageHero,
 };
 
 const navItems = [
@@ -35,24 +35,24 @@ const navItems = [
 ];
 
 const galleryImages = [
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/01/ba1.jpg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/01/ba6.jpg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/01/ba5.jpg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/WhatsApp-Image-2026-01-20-at-12.35.37-PM_magicstudio_75rmy8i1v09.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/Aesthetic-Photo-Collage-Instagram-Post-6.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/Aesthetic-Photo-Collage-Instagram-Post-7.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/Aesthetic-Photo-Collage-Instagram-Post-10.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/WhatsApp-Image-2026-01-20-at-12.35.37-PM-1_magicstudio_5gkbk8eqd06.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/Aesthetic-Photo-Collage-Instagram-Post-11.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/Aesthetic-Photo-Collage-Instagram-Post-12.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/Aesthetic-Photo-Collage-Instagram-Post-13.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/Aesthetic-Photo-Collage-Instagram-Post-20.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/Aesthetic-Photo-Collage-Instagram-Post-19-1.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-07-at-11.42.30-PM.jpeg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-07-at-11.42.31-PM.jpeg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/Aesthetic-Photo-Collage-Instagram-Post-4-1.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-07-at-11.42.31-PM-2.jpeg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/02/Aesthetic-Photo-Collage-Instagram-Post-2-2-1.png',
+  IMAGES.galleryBa1,
+  IMAGES.galleryBa6,
+  IMAGES.galleryBa5,
+  IMAGES.galleryMagicstudioMain,
+  IMAGES.galleryAesthetic6,
+  IMAGES.galleryAesthetic7,
+  IMAGES.galleryAesthetic10,
+  IMAGES.galleryMagicstudioAlt,
+  IMAGES.galleryAesthetic11,
+  IMAGES.galleryAesthetic12,
+  IMAGES.galleryAesthetic13,
+  IMAGES.galleryAesthetic20,
+  IMAGES.galleryAesthetic19,
+  IMAGES.galleryWhatsapp30,
+  IMAGES.galleryWhatsapp31,
+  IMAGES.galleryAesthetic4,
+  IMAGES.galleryWhatsapp31Alt,
+  IMAGES.galleryAesthetic2,
 ];
 
 const Gallery = ({ navigation }) => {
@@ -99,13 +99,16 @@ const Header = ({ isTablet, navigation }) => {
           <View style={styles.menuLine} />
         </TouchableOpacity>
       )}
-      <Image source={{ uri: ASSETS.headerLogo }} style={styles.headerLogo} />
+      <Image source={ASSETS.headerLogo} style={styles.headerLogo} />
       {isTablet ? (
         <View style={styles.navRow}>
           {navItems.map(item => (
             <TouchableOpacity key={item} onPress={() => handleNavPress(item)}>
               <Text
-                style={[styles.navItem, item === 'Gallery' && styles.navItemActive]}
+                style={[
+                  styles.navItem,
+                  item === 'Gallery' && styles.navItemActive,
+                ]}
               >
                 {item}
               </Text>
@@ -121,7 +124,7 @@ const Header = ({ isTablet, navigation }) => {
 
 const PageHero = ({ isTablet }) => (
   <ImageBackground
-    source={{ uri: ASSETS.hero }}
+    source={ASSETS.hero}
     resizeMode="cover"
     imageStyle={styles.heroImage}
     style={[
@@ -174,10 +177,10 @@ const GallerySection = ({ isTablet, isDesktop }) => (
         },
       ]}
     >
-      {galleryImages.map(uri => (
-        <View key={uri} style={styles.imageRow}>
+      {galleryImages.map((source, index) => (
+        <View key={index} style={styles.imageRow}>
           <Image
-            source={{ uri }}
+            source={source}
             style={[
               styles.galleryImage,
               {
@@ -252,7 +255,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(19, 18, 0, 0.1)',
   },
   heroInner: {

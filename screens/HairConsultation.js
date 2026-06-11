@@ -1,11 +1,11 @@
 import React from 'react';
 import ServiceDetailBase from './ServiceDetailBase';
+import IMAGES from '../assets/images';
 
 const data = {
   title: 'Free consultation and hair analysis',
   introTitle: 'Free consultation and hair analysis',
-  image:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-07-at-11.42.29-PM.jpeg',
+  image: IMAGES.consultationDetail,
   introParagraphs: [
     'We often find ourselves speaking to someone desperate for help and not sure where to turn. We always deal with people as we would want to be treated ourselves - with honesty and respect.',
     'There are certain pitfalls that need to be avoided such as committing to a permanent solution, such as surgery or scalp micropigmentation, without thinking of the possible complications and weighing the pros and cons properly, so we are happy to meet as many times as necessary. Using state of the art technology, we can discuss the likely causes and solutions available, as well as what might best be avoided.',

@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import IMAGES from '../assets/images';
 
 const COLORS = {
   secondary: '#131200',
@@ -21,14 +22,11 @@ const COLORS = {
 };
 
 const ASSETS = {
-  hero: 'https://hairtechnology.co.uk/wp-content/uploads/2026/02/5143.jpg',
-  about:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/02/14508b786ede52fb8576c405c8f72c95.jpg',
-  before:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/04/WhatsApp-Image-2026-01-20-at-12.35.38-PM-1-1.png',
-  after:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-20-at-12.35.42-PM-1.png',
-  promise: 'https://hairtechnology.co.uk/wp-content/uploads/2026/02/2147844857.jpg',
+  hero: IMAGES.pageHero,
+  about: IMAGES.aboutMain,
+  before: IMAGES.aboutBefore,
+  after: IMAGES.aboutAfter,
+  promise: IMAGES.aboutPromise,
 };
 
 const benefits = [
@@ -54,11 +52,17 @@ const AboutUsScreen = ({ navigation }) => {
 };
 
 const Header = ({ isTablet, navigation }) => {
-  const handleNavPress = (item) => {
+  const handleNavPress = item => {
     if (
-      ['Home', 'About Us', 'Services', 'What makes us different', 'Gallery', 'Testimonials', 'Contact'].includes(
-        item,
-      )
+      [
+        'Home',
+        'About Us',
+        'Services',
+        'What makes us different',
+        'Gallery',
+        'Testimonials',
+        'Contact',
+      ].includes(item)
     ) {
       navigation.navigate(item);
     }
@@ -77,13 +81,24 @@ const Header = ({ isTablet, navigation }) => {
           <View style={styles.menuLine} />
         </TouchableOpacity>
       )}
-      <Image source={{ uri: 'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-76.png' }} style={styles.headerLogo} />
+      <Image source={IMAGES.headerLogo} style={styles.headerLogo} />
       {isTablet ? (
         <View style={styles.navRow}>
-          {['Home', 'About Us', 'Services', 'What makes us different', 'Gallery', 'Testimonials', 'Contact'].map(item => (
+          {[
+            'Home',
+            'About Us',
+            'Services',
+            'What makes us different',
+            'Gallery',
+            'Testimonials',
+            'Contact',
+          ].map(item => (
             <TouchableOpacity key={item} onPress={() => handleNavPress(item)}>
               <Text
-                style={[styles.navItem, item === 'About Us' && styles.navItemActive]}
+                style={[
+                  styles.navItem,
+                  item === 'About Us' && styles.navItemActive,
+                ]}
               >
                 {item}
               </Text>
@@ -99,7 +114,7 @@ const Header = ({ isTablet, navigation }) => {
 
 const PageHero = ({ isTablet }) => (
   <ImageBackground
-    source={{ uri: ASSETS.hero }}
+    source={ASSETS.hero}
     resizeMode="cover"
     imageStyle={styles.heroImage}
     style={[
@@ -198,7 +213,7 @@ const AboutSection = ({ isTablet, isDesktop }) => (
           ]}
         >
           <Image
-            source={{ uri: ASSETS.about }}
+            source={ASSETS.about}
             style={[
               styles.aboutImage,
               {
@@ -269,14 +284,11 @@ const ImageComparison = ({ isTablet }) => {
 
   return (
     <View
-      style={[
-        styles.compareBox,
-        { height: isTablet ? 470 : 280 },
-      ]}
+      style={[styles.compareBox, { height: isTablet ? 470 : 280 }]}
       onLayout={event => setLayoutWidth(event.nativeEvent.layout.width)}
       {...panResponder.panHandlers}
     >
-      <Image source={{ uri: ASSETS.after }} style={styles.compareImage} />
+      <Image source={ASSETS.after} style={styles.compareImage} />
       <View
         style={[
           styles.beforeClip,
@@ -284,7 +296,7 @@ const ImageComparison = ({ isTablet }) => {
         ]}
       >
         <Image
-          source={{ uri: ASSETS.before }}
+          source={ASSETS.before}
           style={[styles.compareImage, { width: layoutWidth || '100%' }]}
         />
       </View>
@@ -311,9 +323,7 @@ const ImageComparison = ({ isTablet }) => {
             width: handleSize,
             height: handleSize,
             borderRadius: handleSize / 2,
-            left: layoutWidth
-              ? layoutWidth * divider - handleSize / 2
-              : '50%',
+            left: layoutWidth ? layoutWidth * divider - handleSize / 2 : '50%',
             marginLeft: layoutWidth ? 0 : -handleSize / 2,
             marginTop: -handleSize / 2,
           },
@@ -349,7 +359,7 @@ const PromiseSection = ({ isTablet, isDesktop }) => (
         ]}
       >
         <Image
-          source={{ uri: ASSETS.promise }}
+          source={ASSETS.promise}
           style={[
             styles.promiseImage,
             {
@@ -444,7 +454,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(19, 18, 0, 0.24)',
   },
   heroInner: {

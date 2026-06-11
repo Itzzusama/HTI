@@ -3,6 +3,7 @@ import {
   Animated,
   Image,
   ImageBackground,
+  PanResponder,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,6 +11,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import IMAGES from '../assets/images';
 
 const COLORS = {
   primary: '#FFBA49',
@@ -21,7 +23,7 @@ const COLORS = {
 };
 
 const ASSETS = {
-  hero: 'https://hairtechnology.co.uk/wp-content/uploads/2026/02/5143.jpg',
+  hero: IMAGES.pageHero,
 };
 
 const testimonials = [
@@ -40,7 +42,8 @@ const testimonials = [
   },
   {
     author: 'J, Dundee',
-    quote: 'Simply life changing – now I don’t need to think twice about my hair',
+    quote:
+      'Simply life changing – now I don’t need to think twice about my hair',
   },
   {
     author: 'M, Stirling',
@@ -72,11 +75,17 @@ const TestimonialScreen = ({ navigation }) => {
 };
 
 const Header = ({ isTablet, navigation }) => {
-  const handleNavPress = (item) => {
+  const handleNavPress = item => {
     if (
-      ['Home', 'About Us', 'Services', 'What makes us different', 'Gallery', 'Testimonials', 'Contact'].includes(
-        item,
-      )
+      [
+        'Home',
+        'About Us',
+        'Services',
+        'What makes us different',
+        'Gallery',
+        'Testimonials',
+        'Contact',
+      ].includes(item)
     ) {
       navigation.navigate(item);
     }
@@ -95,13 +104,24 @@ const Header = ({ isTablet, navigation }) => {
           <View style={styles.menuLine} />
         </TouchableOpacity>
       )}
-      <Image source={{ uri: 'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-76.png' }} style={styles.headerLogo} />
+      <Image source={IMAGES.headerLogo} style={styles.headerLogo} />
       {isTablet ? (
         <View style={styles.navRow}>
-          {['Home', 'About Us', 'Services', 'What makes us different', 'Gallery', 'Testimonials', 'Contact'].map(item => (
+          {[
+            'Home',
+            'About Us',
+            'Services',
+            'What makes us different',
+            'Gallery',
+            'Testimonials',
+            'Contact',
+          ].map(item => (
             <TouchableOpacity key={item} onPress={() => handleNavPress(item)}>
               <Text
-                style={[styles.navItem, item === 'Testimonials' && styles.navItemActive]}
+                style={[
+                  styles.navItem,
+                  item === 'Testimonials' && styles.navItemActive,
+                ]}
               >
                 {item}
               </Text>
@@ -117,7 +137,7 @@ const Header = ({ isTablet, navigation }) => {
 
 const PageHero = ({ isTablet }) => (
   <ImageBackground
-    source={{ uri: ASSETS.hero }}
+    source={ASSETS.hero}
     resizeMode="cover"
     imageStyle={styles.heroImage}
     style={[
@@ -139,35 +159,132 @@ const PageHero = ({ isTablet }) => (
 
 const TestimonialsSection = ({ isTablet }) => {
   const [active, setActive] = useState(0);
-  const fade = useRef(new Animated.Value(1)).current;
+  const translateX = useRef(new Animated.Value(0)).current;
+  const cardOpacity = useRef(new Animated.Value(1)).current;
+  const isAnimating = useRef(false);
+  const swipeThreshold = isTablet ? 90 : 60;
+  const slideDistance = isTablet ? 220 : 160;
 
-  const goTo = useCallback(nextIndex => {
-    const wrapped =
-      (nextIndex + testimonials.length) % testimonials.length;
-
-    Animated.sequence([
-      Animated.timing(fade, {
+  const resetCardPosition = useCallback(() => {
+    Animated.parallel([
+      Animated.spring(translateX, {
         toValue: 0,
+        useNativeDriver: true,
+        bounciness: 6,
+      }),
+      Animated.timing(cardOpacity, {
+        toValue: 1,
         duration: 180,
         useNativeDriver: true,
       }),
-      Animated.timing(fade, {
-        toValue: 1,
-        duration: 320,
-        useNativeDriver: true,
-      }),
     ]).start();
+  }, [cardOpacity, translateX]);
 
-    setTimeout(() => setActive(wrapped), 180);
-  }, [fade]);
+  const goTo = useCallback(
+    (nextIndex, direction = 1) => {
+      if (isAnimating.current) {
+        return;
+      }
+
+      isAnimating.current = true;
+      const wrapped = (nextIndex + testimonials.length) % testimonials.length;
+      const normalizedDirection = direction >= 0 ? 1 : -1;
+
+      Animated.parallel([
+        Animated.timing(translateX, {
+          toValue: normalizedDirection * -slideDistance,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+        Animated.timing(cardOpacity, {
+          toValue: 0.4,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setActive(wrapped);
+        translateX.setValue(normalizedDirection * slideDistance);
+        cardOpacity.setValue(0.4);
+
+        Animated.parallel([
+          Animated.spring(translateX, {
+            toValue: 0,
+            useNativeDriver: true,
+            bounciness: 5,
+          }),
+          Animated.timing(cardOpacity, {
+            toValue: 1,
+            duration: 220,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          isAnimating.current = false;
+        });
+      });
+    },
+    [cardOpacity, slideDistance, translateX],
+  );
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) =>
+        Math.abs(gestureState.dx) > 12 &&
+        Math.abs(gestureState.dx) > Math.abs(gestureState.dy),
+      onPanResponderMove: (_, gestureState) => {
+        if (isAnimating.current) {
+          return;
+        }
+
+        translateX.setValue(gestureState.dx);
+        const nextOpacity = 1 - Math.min(Math.abs(gestureState.dx) / 260, 0.35);
+        cardOpacity.setValue(nextOpacity);
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (isAnimating.current) {
+          return;
+        }
+
+        if (gestureState.dx <= -swipeThreshold) {
+          goTo(active + 1, 1);
+          return;
+        }
+
+        if (gestureState.dx >= swipeThreshold) {
+          goTo(active - 1, -1);
+          return;
+        }
+
+        resetCardPosition();
+      },
+      onPanResponderTerminate: resetCardPosition,
+    }),
+  ).current;
 
   useEffect(() => {
+    if (isAnimating.current) {
+      return undefined;
+    }
+
     const timer = setInterval(() => {
-      goTo(active + 1);
-    }, 4200);
+      goTo(active + 1, 1);
+    }, 2000);
 
     return () => clearInterval(timer);
   }, [active, goTo]);
+
+  const cardAnimatedStyle = {
+    opacity: cardOpacity,
+    transform: [
+      { translateX },
+      {
+        scale: translateX.interpolate({
+          inputRange: [-260, 0, 260],
+          outputRange: [0.96, 1, 0.96],
+          extrapolate: 'clamp',
+        }),
+      },
+    ],
+  };
 
   return (
     <View
@@ -189,45 +306,59 @@ const TestimonialsSection = ({ isTablet }) => {
         ]}
       >
         <View style={styles.sliderViewport}>
-          <TouchableOpacity
-            style={[styles.arrowButton, styles.arrowLeft]}
-            activeOpacity={0.75}
-            onPress={() => goTo(active - 1)}
-          >
-            <Text style={styles.arrowText}>←</Text>
-          </TouchableOpacity>
-
           <Animated.View
+            {...panResponder.panHandlers}
             style={[
-              styles.testimonialCard,
+              styles.sliderContent,
+              cardAnimatedStyle,
               {
-                opacity: fade,
-                minHeight: isTablet ? 224 : 255,
+                minHeight: isTablet ? 290 : 320,
               },
             ]}
           >
-            <Text style={styles.quoteMark}>“</Text>
-            <Text style={styles.quoteText}>{testimonials[active].quote}</Text>
-            <View style={styles.starRow}>
-              {Array.from({ length: 5 }).map((_, index) => (
-                <Text key={index} style={styles.star}>
-                  ★
-                </Text>
-              ))}
+            <View style={[styles.cardControls, styles.cardControlsLeft]}>
+              <TouchableOpacity
+                style={styles.arrowButton}
+                activeOpacity={0.8}
+                onPress={() => goTo(active - 1, -1)}
+              >
+                <Text style={styles.arrowText}>{`<`}</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={[styles.cardControls, styles.cardControlsRight]}>
+              <TouchableOpacity
+                style={styles.arrowButton}
+                activeOpacity={0.8}
+                onPress={() => goTo(active + 1, 1)}
+              >
+                <Text style={styles.arrowText}>{`>`}</Text>
+              </TouchableOpacity>
+            </View>
+            <View
+              style={[
+                styles.testimonialCard,
+                {
+                  minHeight: isTablet ? 224 : 255,
+                },
+              ]}
+            >
+              <Text style={styles.quoteMark}>“</Text>
+              <Text style={styles.quoteText}>{testimonials[active].quote}</Text>
+              <View style={styles.starRow}>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Text key={index} style={styles.star}>
+                    ★
+                  </Text>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.authorWrap}>
+              <Text style={styles.authorName}>
+                {testimonials[active].author}
+              </Text>
             </View>
           </Animated.View>
-
-          <TouchableOpacity
-            style={[styles.arrowButton, styles.arrowRight]}
-            activeOpacity={0.75}
-            onPress={() => goTo(active + 1)}
-          >
-            <Text style={styles.arrowText}>→</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.authorWrap}>
-          <Text style={styles.authorName}>{testimonials[active].author}</Text>
         </View>
 
         <View style={styles.dots}>
@@ -235,11 +366,8 @@ const TestimonialsSection = ({ isTablet }) => {
             <TouchableOpacity
               key={item.author}
               activeOpacity={0.8}
-              onPress={() => goTo(index)}
-              style={[
-                styles.dot,
-                index === active && styles.dotActive,
-              ]}
+              onPress={() => goTo(index, index > active ? 1 : -1)}
+              style={[styles.dot, index === active && styles.dotActive]}
             />
           ))}
         </View>
@@ -308,7 +436,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(19, 18, 0, 0.24)',
   },
   heroInner: {
@@ -335,6 +463,23 @@ const styles = StyleSheet.create({
   sliderViewport: {
     position: 'relative',
     marginBottom: 50,
+  },
+  sliderContent: {
+    alignItems: 'stretch',
+  },
+  cardControls: {
+    position: 'absolute',
+    top: '50%',
+    zIndex: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -20,
+  },
+  cardControlsLeft: {
+    left: 10,
+  },
+  cardControlsRight: {
+    right: 10,
   },
   testimonialCard: {
     borderRadius: 10,
@@ -413,29 +558,21 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.2 }],
   },
   arrowButton: {
-    position: 'absolute',
-    top: '50%',
-    width: 50,
-    height: 50,
-    marginTop: -95,
-    borderRadius: 25,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: COLORS.white,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 5,
-  },
-  arrowLeft: {
-    left: '-38%',
-  },
-  arrowRight: {
-    right: '-38%',
+    borderWidth: 1,
+    borderColor: 'rgba(194, 147, 64, 0.18)',
   },
   arrowText: {
     color: COLORS.accent,
     fontFamily: 'Urbanist',
-    fontSize: 23,
+    fontSize: 20,
     fontWeight: '700',
-    lineHeight: 25,
+    lineHeight: 22,
   },
 });
 

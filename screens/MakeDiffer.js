@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import IMAGES from '../assets/images';
 
 const COLORS = {
   secondary: '#131200',
@@ -19,13 +20,11 @@ const COLORS = {
 };
 
 const ASSETS = {
-  headerLogo:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-76.png',
-  heroDesktop:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/05/2148401444.jpg',
-  heroTablet: 'https://hairtechnology.co.uk/wp-content/uploads/2026/02/899.jpg',
-  craft: 'https://hairtechnology.co.uk/wp-content/uploads/2026/02/7680.jpg',
-  bottomCta: 'https://hairtechnology.co.uk/wp-content/uploads/2026/02/14096.jpg',
+  headerLogo: IMAGES.headerLogo,
+  heroDesktop: IMAGES.makeDifferHeroDesktop,
+  heroTablet: IMAGES.makeDifferHeroTablet,
+  craft: IMAGES.makeDifferCraft,
+  bottomCta: IMAGES.makeDifferBottomCta,
 };
 
 const navItems = [
@@ -41,33 +40,27 @@ const navItems = [
 const differenceCards = [
   {
     title: 'Experienced Specialists',
-    body:
-      "Our hair system specialists bring years of hands-on experience in precision fitting, styling and custom hair system design. We focus on delivering natural, realistic results tailored to each client's appearance and lifestyle.",
+    body: "Our hair system specialists bring years of hands-on experience in precision fitting, styling and custom hair system design. We focus on delivering natural, realistic results tailored to each client's appearance and lifestyle.",
   },
   {
     title: 'Transparent & Honest Service',
-    body:
-      'We believe in clear guidance, realistic expectations and complete pricing transparency. Our consultation process focuses on helping you to make the right choice for you without any pressure',
+    body: 'We believe in clear guidance, realistic expectations and complete pricing transparency. Our consultation process focuses on helping you to make the right choice for you without any pressure',
   },
   {
     title: 'Fully Personalised Solutions',
-    body:
-      'Every hair system is carefully customised based on your preferred style, hair density, colour match and daily routine, ensuring a solution that feels comfortable and looks natural.',
+    body: 'Every hair system is carefully customised based on your preferred style, hair density, colour match and daily routine, ensuring a solution that feels comfortable and looks natural.',
   },
   {
     title: 'State of the Art Technology',
-    body:
-      'We constantly strive to provide the most advanced procedures, many exclusively in Scotland, to give unparalleled guaranteed results that look completely natural.',
+    body: 'We constantly strive to provide the most advanced procedures, many exclusively in Scotland, to give unparalleled guaranteed results that look completely natural.',
   },
   {
     title: 'Premium Hygiene & Comfort Standards',
-    body:
-      'We maintain strict hygiene and quality control during consultation, fitting and maintenance to ensure a safe, clean and professional experience.',
+    body: 'We maintain strict hygiene and quality control during consultation, fitting and maintenance to ensure a safe, clean and professional experience.',
   },
   {
     title: 'Ongoing Maintenance & Support',
-    body:
-      "Our service continues beyond fitting. We provide professional maintenance guidance, refitting support and styling advice to help maintain your hair system's natural appearance and longevity.",
+    body: "Our service continues beyond fitting. We provide professional maintenance guidance, refitting support and styling advice to help maintain your hair system's natural appearance and longevity.",
   },
 ];
 
@@ -98,9 +91,15 @@ const MakeDifferScreen = ({ navigation }) => {
 const Header = ({ isTablet, navigation }) => {
   const handleNavPress = item => {
     if (
-      ['Home', 'About Us', 'Services', 'What makes us different', 'Gallery', 'Testimonials', 'Contact'].includes(
-        item,
-      )
+      [
+        'Home',
+        'About Us',
+        'Services',
+        'What makes us different',
+        'Gallery',
+        'Testimonials',
+        'Contact',
+      ].includes(item)
     ) {
       navigation.navigate(item);
     }
@@ -119,7 +118,7 @@ const Header = ({ isTablet, navigation }) => {
           <View style={styles.menuLine} />
         </TouchableOpacity>
       )}
-      <Image source={{ uri: ASSETS.headerLogo }} style={styles.headerLogo} />
+      <Image source={ASSETS.headerLogo} style={styles.headerLogo} />
       {isTablet ? (
         <View style={styles.navRow}>
           {navItems.map(item => (
@@ -144,7 +143,7 @@ const Header = ({ isTablet, navigation }) => {
 
 const Hero = ({ isTablet, isDesktop }) => (
   <ImageBackground
-    source={{ uri: isTablet && !isDesktop ? ASSETS.heroTablet : ASSETS.heroDesktop }}
+    source={isTablet && !isDesktop ? ASSETS.heroTablet : ASSETS.heroDesktop}
     resizeMode="cover"
     imageStyle={styles.heroImage}
     style={[
@@ -284,7 +283,7 @@ const CraftSection = ({ isTablet, isDesktop, navigation }) => (
         ]}
       >
         <Image
-          source={{ uri: ASSETS.craft }}
+          source={ASSETS.craft}
           style={[
             styles.craftImage,
             {
@@ -299,7 +298,7 @@ const CraftSection = ({ isTablet, isDesktop, navigation }) => (
 
 const BottomCta = ({ isTablet, isDesktop, navigation }) => (
   <ImageBackground
-    source={{ uri: ASSETS.bottomCta }}
+    source={ASSETS.bottomCta}
     resizeMode="cover"
     imageStyle={styles.ctaImage}
     style={[
@@ -400,7 +399,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(19, 18, 0, 0.5)',
   },
   heroInner: {
@@ -528,7 +527,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   ctaOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(19, 18, 0, 0.6)',
   },
   ctaInner: {

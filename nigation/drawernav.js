@@ -14,12 +14,12 @@ import ContactScreen from '../screens/ContactScreen';
 import HairReplacementScreen from '../screens/HairReplacement';
 import HairEnhancementScreen from '../screens/HairEnhancement';
 import HairConsultationScreen from '../screens/HairConsultation';
+import IMAGES from '../assets/images';
 
 const Drawer = createDrawerNavigator();
 
 const ASSETS = {
-  headerLogo:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-76.png',
+  headerLogo: IMAGES.headerLogo,
 };
 
 const COLORS = {
@@ -45,7 +45,7 @@ function CustomDrawerContent(props) {
       {/* Header Logo section */}
       <View style={styles.headerSection}>
         <Image
-          source={{ uri: ASSETS.headerLogo }}
+          source={ASSETS.headerLogo}
           style={styles.logo}
           resizeMode="contain"
         />

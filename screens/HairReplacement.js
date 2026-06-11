@@ -1,11 +1,11 @@
 import React from 'react';
 import ServiceDetailBase from './ServiceDetailBase';
+import IMAGES from '../assets/images';
 
 const data = {
   title: 'Hair replacement',
   introTitle: 'Hair replacement',
-  image:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-13-at-1.58.03-AM.jpeg',
+  image: IMAGES.hairReplacementDetail,
   introParagraphs: [
     'Suitable for anyone experiencing hair loss, our hair systems are designed to replicate your own natural hair and blend seamlessly.',
     'The costs start at only £445 and the results are guaranteed. We can guide you through every step of the process from the initial informal chat right through to the finished result. With three decades of experience, we have access to the widest range of products designed to give you complete comfort and security with your new hair.',

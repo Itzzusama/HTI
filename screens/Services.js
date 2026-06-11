@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import IMAGES from '../assets/images';
 
 const COLORS = {
   secondary: '#131200',
@@ -21,15 +22,12 @@ const COLORS = {
 };
 
 const ASSETS = {
-  headerLogo:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-76.png',
-  hero: 'https://hairtechnology.co.uk/wp-content/uploads/2026/02/5143.jpg',
-  pattern: 'https://hairtechnology.co.uk/wp-content/uploads/2026/01/temple-1.png',
-  intro:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/02/handsome-young-man-worried-about-hairloss_709238-5423.webp',
-  globe: 'https://hairtechnology.co.uk/wp-content/uploads/2026/05/Globe-22-1024x1024.png',
-  why:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-07-at-11.42.29-PM-1.jpeg',
+  headerLogo: IMAGES.headerLogo,
+  hero: IMAGES.pageHero,
+  pattern: IMAGES.servicesPattern,
+  intro: IMAGES.servicesIntro,
+  globe: IMAGES.globe,
+  why: IMAGES.servicesWhy,
 };
 
 const navItems = [
@@ -54,60 +52,51 @@ const serviceCards = [
   {
     title: 'Hair replacement',
     route: 'Hair Replacement',
-    image:
-      'https://hairtechnology.co.uk/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-23-at-4.39.32-AM_magicstudio_zye80bjykqp.png',
-    body:
-      'We select the very best suppliers worldwide and offer the very latest techniques, many exclusively in Scotland, for the best price. GUARANTEED. Our exclusive Hair for Life programmes mean that you can have the head of hair you have always wanted, with all hairdressing needs catered for, from only £69.50 per month. Click here for more info on hair replacement.',
+    image: IMAGES.hairReplacementCard,
+    body: 'We select the very best suppliers worldwide and offer the very latest techniques, many exclusively in Scotland, for the best price. GUARANTEED. Our exclusive Hair for Life programmes mean that you can have the head of hair you have always wanted, with all hairdressing needs catered for, from only £69.50 per month. Click here for more info on hair replacement.',
   },
   {
     title: 'Hair enhancement',
     route: 'Hair Enhancement',
-    image:
-      'https://hairtechnology.co.uk/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2026-02-13-at-1.58.06-AM-rj831sbt0jpb2ucviyb20aouxi5uvbe00i89we9pa8.jpeg',
-    body:
-      'For those who just want more hair or thicker hair but who do not want the hassle and ongoing cost of extensions, our enhancement techniques (such as the Volumiser which we exclusively offer in Scotland) are ideal.',
+    image: IMAGES.thumbnailEnhancement,
+    body: 'For those who just want more hair or thicker hair but who do not want the hassle and ongoing cost of extensions, our enhancement techniques (such as the Volumiser which we exclusively offer in Scotland) are ideal.',
   },
   {
     title: 'Free consultation and hair analysis',
     route: 'Hair Consultation',
-    image:
-      'https://hairtechnology.co.uk/wp-content/uploads/elementor/thumbs/2149296515-ri4f115d76zqyyfxjqhltm7wf7demr70yskuakjjnk.jpg',
-    body:
-      'With over three decades experience in assessing and treating hair loss and microscopic hair analysis, we offer one to one consultations completely free of charge. This allows us to give tailored advice on the options available and what would be right for you',
+    image: IMAGES.consultationCard,
+    body: 'With over three decades experience in assessing and treating hair loss and microscopic hair analysis, we offer one to one consultations completely free of charge. This allows us to give tailored advice on the options available and what would be right for you',
   },
 ];
 
 const partnerLogos = [
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/05/Executive_Hair_USA_logo_202605212025-150x150.jpeg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/05/La_Biosthetique_France_202605212029-150x150.jpeg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/05/Logo_design_for_supplier_202605212023-150x150.jpeg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/05/Logo_design_for_supplier_202605212025-150x150.jpeg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/05/Logo_design_for_X2O_Products_202605212025-150x150.jpeg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/05/New_Image_Consultants_UK_202605212031-150x150.jpeg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/05/New_Image_Hair_USA_202605212027-150x150.jpeg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/05/New_Times_Hair_USA_202605212030-150x150.jpeg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/05/Osmo_Hair_UK_202605212028-150x150.jpeg',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/05/Professional_Hair_Labs_Ireland_202605212033-150x150.jpeg',
+  IMAGES.partnerExecutiveHair,
+  IMAGES.partnerLaBiosthetique,
+  IMAGES.partnerSupplierPrimary,
+  IMAGES.partnerSupplierSecondary,
+  IMAGES.partnerX2O,
+  IMAGES.partnerNewImageConsultants,
+  IMAGES.partnerNewImageHair,
+  IMAGES.partnerNewTimesHair,
+  IMAGES.partnerOsmoHair,
+  IMAGES.partnerProfessionalHairLabs,
 ];
 
 const choiceItems = [
   {
     icon: 'H',
     title: "Specialists in Men's Hair Systems",
-    body:
-      'We focus exclusively on providing high-quality hair replacement systems tailored for men. From consultation to fitting and styling, every solution is customised to match your natural hair texture, density, and lifestyle.',
+    body: 'We focus exclusively on providing high-quality hair replacement systems tailored for men. From consultation to fitting and styling, every solution is customised to match your natural hair texture, density, and lifestyle.',
   },
   {
     icon: 'U',
     title: 'Proven Experience & Trusted Results',
-    body:
-      'With years of hands-on experience in hair system design fitting, and maintenance, we have helped clients achieve natural-looking, undetectable results that restore confidence.',
+    body: 'With years of hands-on experience in hair system design fitting, and maintenance, we have helped clients achieve natural-looking, undetectable results that restore confidence.',
   },
   {
     icon: '✓',
     title: 'Precision Fitting & Natural Appearance',
-    body:
-      'Designed to complement your own hair and professionally styled to blend seamlessly with your own hair, ensuring your hair looks totally natural and feels great.',
+    body: 'Designed to complement your own hair and professionally styled to blend seamlessly with your own hair, ensuring your hair looks totally natural and feels great.',
   },
 ];
 
@@ -162,7 +151,7 @@ const Header = ({ isTablet, navigation }) => {
           <View style={styles.menuLine} />
         </TouchableOpacity>
       )}
-      <Image source={{ uri: ASSETS.headerLogo }} style={styles.headerLogo} />
+      <Image source={ASSETS.headerLogo} style={styles.headerLogo} />
       {isTablet ? (
         <View style={styles.navRow}>
           {navItems.map(item => (
@@ -187,7 +176,7 @@ const Header = ({ isTablet, navigation }) => {
 
 const PageHero = ({ isTablet }) => (
   <ImageBackground
-    source={{ uri: ASSETS.hero }}
+    source={ASSETS.hero}
     resizeMode="cover"
     imageStyle={styles.heroImage}
     style={[
@@ -209,7 +198,7 @@ const PageHero = ({ isTablet }) => (
 
 const IntroSection = ({ isTablet, isDesktop }) => (
   <ImageBackground
-    source={{ uri: ASSETS.pattern }}
+    source={ASSETS.pattern}
     resizeMode="repeat"
     style={[
       styles.introShell,
@@ -271,7 +260,7 @@ const IntroSection = ({ isTablet, isDesktop }) => (
           ]}
         />
         <Image
-          source={{ uri: ASSETS.intro }}
+          source={ASSETS.intro}
           style={[
             styles.introImage,
             {
@@ -334,7 +323,7 @@ const ServiceCard = ({ card, isDesktop, navigation }) => (
       },
     ]}
   >
-    <Image source={{ uri: card.image }} style={styles.cardImage} />
+    <Image source={card.image} style={styles.cardImage} />
     <View style={styles.cardBody}>
       <Text style={styles.cardTitle}>{card.title}</Text>
       <Text style={styles.cardText}>{card.body}</Text>
@@ -371,14 +360,14 @@ const PartnersSection = ({ isTablet, isDesktop }) => (
       Working with our professional partners:
     </Text>
     <View style={styles.logoGrid}>
-      {partnerLogos.map(uri => (
-        <View key={uri} style={styles.logoTile}>
-          <Image source={{ uri }} style={styles.partnerLogo} />
+      {partnerLogos.map((source, index) => (
+        <View key={index} style={styles.logoTile}>
+          <Image source={source} style={styles.partnerLogo} />
         </View>
       ))}
     </View>
     <Image
-      source={{ uri: ASSETS.globe }}
+      source={ASSETS.globe}
       style={[
         styles.globeImage,
         {
@@ -406,7 +395,7 @@ const WhyChooseSection = ({ isTablet, isDesktop }) => (
   >
     <View style={styles.whyImageColumn}>
       <Image
-        source={{ uri: ASSETS.why }}
+        source={ASSETS.why}
         style={[
           styles.whyImage,
           {
@@ -531,7 +520,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(19, 18, 0, 0.1)',
   },
   heroInner: {
@@ -554,7 +543,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   whiteWash: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
   },
   splitInner: {

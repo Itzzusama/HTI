@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import IMAGES from '../assets/images';
 
 const COLORS = {
   primary: '#FFBA49',
@@ -24,9 +25,8 @@ const COLORS = {
 };
 
 const ASSETS = {
-  hero: 'https://hairtechnology.co.uk/wp-content/uploads/2026/02/5143.jpg',
-  infoBackground:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/05/2148401388.jpg',
+  hero: IMAGES.pageHero,
+  infoBackground: IMAGES.contactInfoBackground,
 };
 
 const formFields = [
@@ -70,11 +70,17 @@ const ContactScreen = ({ navigation }) => {
 };
 
 const Header = ({ isTablet, navigation }) => {
-  const handleNavPress = (item) => {
+  const handleNavPress = item => {
     if (
-      ['Home', 'About Us', 'Services', 'What makes us different', 'Gallery', 'Testimonials', 'Contact'].includes(
-        item,
-      )
+      [
+        'Home',
+        'About Us',
+        'Services',
+        'What makes us different',
+        'Gallery',
+        'Testimonials',
+        'Contact',
+      ].includes(item)
     ) {
       navigation.navigate(item);
     }
@@ -93,13 +99,24 @@ const Header = ({ isTablet, navigation }) => {
           <View style={styles.menuLine} />
         </TouchableOpacity>
       )}
-      <Image source={{ uri: 'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-76.png' }} style={styles.headerLogo} />
+      <Image source={IMAGES.headerLogo} style={styles.headerLogo} />
       {isTablet ? (
         <View style={styles.navRow}>
-          {['Home', 'About Us', 'Services', 'What makes us different', 'Gallery', 'Testimonials', 'Contact'].map(item => (
+          {[
+            'Home',
+            'About Us',
+            'Services',
+            'What makes us different',
+            'Gallery',
+            'Testimonials',
+            'Contact',
+          ].map(item => (
             <TouchableOpacity key={item} onPress={() => handleNavPress(item)}>
               <Text
-                style={[styles.navItem, item === 'Contact' && styles.navItemActive]}
+                style={[
+                  styles.navItem,
+                  item === 'Contact' && styles.navItemActive,
+                ]}
               >
                 {item}
               </Text>
@@ -115,7 +132,7 @@ const Header = ({ isTablet, navigation }) => {
 
 const PageHero = ({ title, isTablet }) => (
   <ImageBackground
-    source={{ uri: ASSETS.hero }}
+    source={ASSETS.hero}
     resizeMode="cover"
     imageStyle={styles.heroImage}
     style={[
@@ -218,7 +235,7 @@ const ContactFormSection = ({ isTablet, isDesktop }) => (
 
 const ContactInfoBand = ({ isTablet, isDesktop }) => (
   <ImageBackground
-    source={{ uri: ASSETS.infoBackground }}
+    source={ASSETS.infoBackground}
     resizeMode="cover"
     imageStyle={styles.infoBandImage}
     style={[
@@ -251,7 +268,10 @@ const InfoCard = ({ card, isTablet }) => (
   <View
     style={[
       styles.infoCard,
-      { padding: isTablet ? 50 : 30, alignItems: isTablet ? 'stretch' : 'center' },
+      {
+        padding: isTablet ? 50 : 30,
+        alignItems: isTablet ? 'stretch' : 'center',
+      },
     ]}
   >
     <Text style={[styles.infoIcon, { fontSize: isTablet ? 50 : 35 }]}>
@@ -324,7 +344,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(19, 18, 0, 0.24)',
   },
   heroInner: {
@@ -440,11 +460,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   mapWash: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: '#E9EEF0',
   },
   mapGrid: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     opacity: 0.7,
     justifyContent: 'space-around',
   },

@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import IMAGES from '../assets/images';
 
 const COLORS = {
   black: '#333333',
@@ -24,26 +25,22 @@ const COLORS = {
 };
 
 const ASSETS = {
-  headerLogo:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-76.png',
-  footerLogo:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/01/coatofarmslogo.png',
-  hero: 'https://hairtechnology.co.uk/wp-content/uploads/2026/01/hair4.jpg',
-  about:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/02/2149396120.jpg',
-  stats: 'https://hairtechnology.co.uk/wp-content/uploads/2026/02/6003.jpg',
-  appointment:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/02/charming-strong-young-guy-holds-his-hand-his-hair_150254-1039.webp',
+  headerLogo: IMAGES.headerLogo,
+  footerLogo: IMAGES.footerLogo,
+  hero: IMAGES.homeHero,
+  about: IMAGES.homeAbout,
+  stats: IMAGES.homeStats,
+  appointment: IMAGES.homeAppointment,
 };
 
 const partnerImages = [
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Vector.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-56.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-55.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-54.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-53.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-52.png',
-  'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-51.png',
+  IMAGES.partnerVector,
+  IMAGES.partnerGroup56,
+  IMAGES.partnerGroup55,
+  IMAGES.partnerGroup54,
+  IMAGES.partnerGroup53,
+  IMAGES.partnerGroup52,
+  IMAGES.partnerGroup51,
 ];
 
 const navItems = [
@@ -57,16 +54,16 @@ const navItems = [
 ];
 
 const topStats = [
-  'Successful Consultations',
-  'Hair & Scalp Treatments',
-  'Advanced Hair Solutions',
-  'Satisfied Long-Term Clients',
+  { label: 'Successful Consultations', value: '0+' },
+  { label: 'Hair & Scalp Treatments', value: '0K' },
+  { label: 'Advanced Hair Solutions', value: '0+' },
+  { label: 'Satisfied Long-Term Clients', value: '0+' },
 ];
 
 const bottomStats = [
-  'Years Experience',
-  'Active Clients',
-  'Hair systems fitted',
+  { label: 'Years Experience', value: '0+' },
+  { label: 'Active Clients', value: '0+' },
+  { label: 'Hair systems fitted', value: '0+' },
 ];
 
 const formFields = [
@@ -82,11 +79,17 @@ const HomeScreen = ({ activeScreen = 'Home', onNavigate, navigation }) => {
   const isTablet = width >= 768;
   const horizontal = isTablet ? 40 : 20;
 
-  const handleNavigate = (screen) => {
+  const handleNavigate = screen => {
     if (
-      ['Home', 'About Us', 'Services', 'What makes us different', 'Gallery', 'Testimonials', 'Contact'].includes(
-        screen,
-      )
+      [
+        'Home',
+        'About Us',
+        'Services',
+        'What makes us different',
+        'Gallery',
+        'Testimonials',
+        'Contact',
+      ].includes(screen)
     ) {
       navigation.navigate(screen);
     } else if (onNavigate) {
@@ -112,11 +115,17 @@ const HomeScreen = ({ activeScreen = 'Home', onNavigate, navigation }) => {
 };
 
 const Header = ({ isTablet, navigation }) => {
-  const handleNavPress = (item) => {
+  const handleNavPress = item => {
     if (
-      ['Home', 'About Us', 'Services', 'What makes us different', 'Gallery', 'Testimonials', 'Contact'].includes(
-        item,
-      )
+      [
+        'Home',
+        'About Us',
+        'Services',
+        'What makes us different',
+        'Gallery',
+        'Testimonials',
+        'Contact',
+      ].includes(item)
     ) {
       navigation.navigate(item);
     }
@@ -127,7 +136,7 @@ const Header = ({ isTablet, navigation }) => {
       {!isTablet && (
         <TouchableOpacity
           style={styles.menuButton}
-          activeOpacity={0.8}
+          activeOpacity={0.3}
           onPress={() => navigation && navigation.openDrawer()}
         >
           <View style={styles.menuLine} />
@@ -135,13 +144,16 @@ const Header = ({ isTablet, navigation }) => {
           <View style={styles.menuLine} />
         </TouchableOpacity>
       )}
-      <Image source={{ uri: ASSETS.headerLogo }} style={styles.headerLogo} />
+      <Image source={ASSETS.headerLogo} style={styles.headerLogo} />
       {isTablet ? (
         <View style={styles.navRow}>
           {navItems.map(item => (
             <TouchableOpacity key={item} onPress={() => handleNavPress(item)}>
               <Text
-                style={[styles.navItem, item === 'Home' && styles.navItemActive]}
+                style={[
+                  styles.navItem,
+                  item === 'Home' && styles.navItemActive,
+                ]}
               >
                 {item}
               </Text>
@@ -157,7 +169,7 @@ const Header = ({ isTablet, navigation }) => {
 
 const Hero = ({ isTablet, horizontal }) => (
   <ImageBackground
-    source={{ uri: ASSETS.hero }}
+    source={ASSETS.hero}
     resizeMode="cover"
     imageStyle={styles.heroImage}
     style={[styles.hero, { minHeight: isTablet ? 720 : 650 }]}
@@ -235,7 +247,7 @@ const About = ({ isTablet, horizontal }) => (
     </View>
     <View style={[styles.aboutImageWrap, isTablet && styles.half]}>
       <View style={styles.dottedFrame} />
-      <Image source={{ uri: ASSETS.about }} style={styles.aboutImage} />
+      <Image source={ASSETS.about} style={styles.aboutImage} />
     </View>
   </View>
 );
@@ -255,7 +267,7 @@ const InfoBlock = ({ icon, title, body }) => (
 const StatsSection = ({ isTablet, horizontal }) => (
   <>
     <ImageBackground
-      source={{ uri: ASSETS.stats }}
+      source={ASSETS.stats}
       resizeMode="cover"
       style={styles.statsHero}
     >
@@ -276,29 +288,39 @@ const StatsSection = ({ isTablet, horizontal }) => (
     </ImageBackground>
 
     <View style={[styles.statsPanel, { marginHorizontal: horizontal }]}>
-      {topStats.map(label => (
-        <CounterCard key={label} label={label} compact={!isTablet} />
+      {topStats.map(item => (
+        <CounterCard
+          key={item.label}
+          label={item.label}
+          value={item.value}
+          compact={!isTablet}
+        />
       ))}
     </View>
 
     <View style={styles.logoStrip}>
-      {partnerImages.map(uri => (
-        <Image key={uri} source={{ uri }} style={styles.partnerImage} />
+      {partnerImages.map((source, index) => (
+        <Image key={index} source={source} style={styles.partnerImage} />
       ))}
     </View>
 
     <View style={[styles.bottomStats, { paddingHorizontal: horizontal }]}>
-      {bottomStats.map(label => (
-        <CounterCard key={label} label={label} compact={!isTablet} />
+      {bottomStats.map(item => (
+        <CounterCard
+          key={item.label}
+          label={item.label}
+          value={item.value}
+          compact={!isTablet}
+        />
       ))}
     </View>
   </>
 );
 
-const CounterCard = ({ label, compact }) => (
+const CounterCard = ({ label, value, compact }) => (
   <View style={[styles.counterCard, { width: compact ? '48%' : '23%' }]}>
     <Text style={[styles.counterNumber, { fontSize: compact ? 34 : 50 }]}>
-      0+
+      {value}
     </Text>
     <Text style={styles.counterLabel}>{label}</Text>
   </View>
@@ -306,7 +328,7 @@ const CounterCard = ({ label, compact }) => (
 
 const Appointment = ({ isTablet, horizontal }) => (
   <ImageBackground
-    source={{ uri: ASSETS.appointment }}
+    source={ASSETS.appointment}
     resizeMode="cover"
     style={[
       styles.appointment,
@@ -375,12 +397,12 @@ const Appointment = ({ isTablet, horizontal }) => (
 );
 
 const Footer = ({ isTablet, horizontal, activeScreen, onNavigate }) => (
-  <View style={[styles.footer, { paddingHorizontal: horizontal }]}> 
+  <View style={[styles.footer, { paddingHorizontal: horizontal }]}>
     <View
       style={[styles.footerTop, { flexDirection: isTablet ? 'row' : 'column' }]}
     >
       <View style={styles.footerBrand}>
-        <Image source={{ uri: ASSETS.footerLogo }} style={styles.footerLogo} />
+        <Image source={ASSETS.footerLogo} style={styles.footerLogo} />
         <Text style={styles.footerDescription}>
           Hair Technology International specialises in natural-looking hair
           systems, delivering confidence through quality craftsmanship and
@@ -528,8 +550,8 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(19, 18, 0, 0.72)',
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(19, 18, 0, 0.40)',
   },
   heroContent: {
     zIndex: 2,
@@ -682,7 +704,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.black,
   },
   darkWash: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(19, 18, 0, 0.42)',
   },
   statsHeading: {
@@ -762,7 +784,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.black,
   },
   appointmentOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(19, 18, 0, 0.46)',
   },
   formCard: {

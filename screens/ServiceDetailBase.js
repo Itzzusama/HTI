@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import IMAGES from '../assets/images';
 
 const COLORS = {
   secondary: '#131200',
@@ -20,9 +21,8 @@ const COLORS = {
 };
 
 const ASSETS = {
-  headerLogo:
-    'https://hairtechnology.co.uk/wp-content/uploads/2026/01/Group-76.png',
-  hero: 'https://hairtechnology.co.uk/wp-content/uploads/2026/02/5143.jpg',
+  headerLogo: IMAGES.headerLogo,
+  hero: IMAGES.pageHero,
 };
 
 const navItems = [
@@ -81,7 +81,7 @@ const Header = ({ isTablet, navigation }) => {
           <View style={styles.menuLine} />
         </TouchableOpacity>
       )}
-      <Image source={{ uri: ASSETS.headerLogo }} style={styles.headerLogo} />
+      <Image source={ASSETS.headerLogo} style={styles.headerLogo} />
       {isTablet ? (
         <View style={styles.navRow}>
           {navItems.map(item => (
@@ -106,7 +106,7 @@ const Header = ({ isTablet, navigation }) => {
 
 const PageHero = ({ title, isTablet }) => (
   <ImageBackground
-    source={{ uri: ASSETS.hero }}
+    source={ASSETS.hero}
     resizeMode="cover"
     imageStyle={styles.heroImage}
     style={[
@@ -174,7 +174,7 @@ const IntroSection = ({ data, isTablet, isDesktop }) => (
           ]}
         />
         <Image
-          source={{ uri: data.image }}
+          source={data.image}
           style={[
             styles.introImage,
             {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(19, 18, 0, 0.1)',
   },
   heroInner: {
