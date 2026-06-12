@@ -3,7 +3,6 @@ import {
   Image,
   ImageBackground,
   Linking,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -11,6 +10,15 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import Animated, {
+  Extrapolation,
+  FadeInDown,
+  FadeInUp,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IMAGES from '../assets/images';
 
@@ -68,21 +76,46 @@ const contactCards = [
 ];
 
 const ContactScreen = ({ navigation }) => {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const scrollY = useSharedValue(0);
   const isTablet = width >= 768;
   const isDesktop = width >= 1025;
+  const scrollHandler = useAnimatedScrollHandler(event => {
+    scrollY.value = event.contentOffset.y;
+  });
+
+  const headerHeight = 102 + insets.top;
+  const heroHeight = isTablet ? 416 : 240;
+  const formStart = headerHeight + heroHeight;
+  const formSectionHeight = isDesktop ? 864 : isTablet ? 516 : 760;
+  const infoStart = formStart + formSectionHeight;
 
   return (
-    <ScrollView
+    <Animated.ScrollView
       style={styles.container}
       showsVerticalScrollIndicator={false}
       stickyHeaderIndices={[0]}
+      onScroll={scrollHandler}
+      scrollEventThrottle={16}
     >
       <Header isTablet={isTablet} navigation={navigation} />
       <PageHero title="Contact Us" isTablet={isTablet} />
-      <ContactFormSection isTablet={isTablet} isDesktop={isDesktop} />
-      <ContactInfoBand isTablet={isTablet} isDesktop={isDesktop} />
-    </ScrollView>
+      <ContactFormSection
+        isTablet={isTablet}
+        isDesktop={isDesktop}
+        scrollY={scrollY}
+        viewportHeight={height}
+        startOffset={formStart}
+      />
+      <ContactInfoBand
+        isTablet={isTablet}
+        isDesktop={isDesktop}
+        scrollY={scrollY}
+        viewportHeight={height}
+        startOffset={infoStart}
+      />
+    </Animated.ScrollView>
   );
 };
 
@@ -168,18 +201,45 @@ const PageHero = ({ title, isTablet }) => (
     ]}
   >
     <View style={styles.heroOverlay} />
-    <View style={styles.heroInner}>
-      <Text style={[styles.heroTitle, { fontSize: isTablet ? 50 : 35 }]}>
+    <Animated.View
+      entering={FadeInUp.duration(780).delay(120).springify().damping(18)}
+      style={styles.heroInner}
+    >
+      <Animated.Text
+        entering={FadeInDown.duration(650).delay(240)}
+        style={[styles.heroTitle, { fontSize: isTablet ? 50 : 35 }]}
+      >
         {title}
-      </Text>
-    </View>
+      </Animated.Text>
+    </Animated.View>
   </ImageBackground>
 );
 
-const ContactFormSection = ({ isTablet, isDesktop }) => {
+const ContactFormSection = ({
+  isTablet,
+  isDesktop,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
   const openMap = () => {
     Linking.openURL(LOCATION.mapsUrl);
   };
+
+  const formRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset + 40,
+    translateY: 45,
+    initialScale: 0.97,
+  });
+  const mapRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset + 110,
+    translateY: 55,
+    initialScale: 0.94,
+  });
 
   return (
     <View
@@ -192,13 +252,14 @@ const ContactFormSection = ({ isTablet, isDesktop }) => {
         },
       ]}
     >
-      <View
+      <Animated.View
         style={[
           styles.formPanel,
           {
             padding: isTablet ? 48 : 25,
             width: isDesktop ? '50%' : '100%',
           },
+          formRevealStyle,
         ]}
       >
         <Text style={[styles.formHeading, { fontSize: isTablet ? 40 : 30 }]}>
@@ -212,9 +273,10 @@ const ContactFormSection = ({ isTablet, isDesktop }) => {
         </Text>
 
         <View style={styles.fieldsWrap}>
-          {formFields.map(field => (
-            <View
+          {formFields.map((field, index) => (
+            <Animated.View
               key={field.label}
+              entering={FadeInUp.duration(520).delay(260 + index * 90)}
               style={[
                 styles.fieldGroup,
                 field.half && isDesktop ? styles.fieldHalf : styles.fieldFull,
@@ -228,100 +290,195 @@ const ContactFormSection = ({ isTablet, isDesktop }) => {
                 textAlignVertical={field.multiline ? 'top' : 'center'}
                 style={[styles.input, field.multiline && styles.messageInput]}
               />
-            </View>
+            </Animated.View>
           ))}
         </View>
 
-        <TouchableOpacity style={styles.submitButton} activeOpacity={0.82}>
-          <Text style={styles.submitIcon}>@</Text>
-          <Text style={styles.submitText}>Send Message</Text>
-        </TouchableOpacity>
-      </View>
+        <Animated.View entering={FadeInUp.duration(540).delay(660)}>
+          <TouchableOpacity style={styles.submitButton} activeOpacity={0.82}>
+            <Text style={styles.submitIcon}>@</Text>
+            <Text style={styles.submitText}>Send Message</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </Animated.View>
 
-      <TouchableOpacity
-        activeOpacity={0.88}
-        onPress={openMap}
+      <Animated.View
         style={[
-          styles.mapPanel,
           {
             width: isDesktop ? '50%' : '100%',
             minHeight: isDesktop ? 640 : isTablet ? 420 : 300,
           },
+          mapRevealStyle,
         ]}
       >
-        <ImageBackground
-          source={ASSETS.mapPreview}
-          resizeMode="cover"
-          imageStyle={styles.mapImage}
-          style={styles.mapImageShell}
+        <TouchableOpacity
+          activeOpacity={0.88}
+          onPress={openMap}
+          style={styles.mapPanel}
         >
-          <View style={styles.mapWash} />
-          <View style={styles.mapMarker}>
-            <Text style={styles.mapMarkerText}>⌖</Text>
-          </View>
-          <View style={styles.mapInfoCard}>
-            <Text style={styles.mapTitle}>
-              2nd Floor, 79 West Regent Street
-            </Text>
-            <Text style={styles.mapAddress}>Glasgow G2 2AW</Text>
-          </View>
-        </ImageBackground>
-      </TouchableOpacity>
+          <ImageBackground
+            source={ASSETS.mapPreview}
+            resizeMode="cover"
+            imageStyle={styles.mapImage}
+            style={styles.mapImageShell}
+          >
+            <View style={styles.mapWash} />
+            <Animated.View
+              entering={FadeInDown.duration(620).delay(520)}
+              style={styles.mapMarker}
+            >
+              <Text style={styles.mapMarkerText}>⌖</Text>
+            </Animated.View>
+            <Animated.View
+              entering={FadeInUp.duration(620).delay(620)}
+              style={styles.mapInfoCard}
+            >
+              <Text style={styles.mapTitle}>
+                2nd Floor, 79 West Regent Street
+              </Text>
+              <Text style={styles.mapAddress}>Glasgow G2 2AW</Text>
+            </Animated.View>
+          </ImageBackground>
+        </TouchableOpacity>
+      </Animated.View>
     </View>
   );
 };
 
-const ContactInfoBand = ({ isTablet, isDesktop }) => (
-  <ImageBackground
-    source={ASSETS.infoBackground}
-    resizeMode="cover"
-    imageStyle={styles.infoBandImage}
-    style={[
-      styles.infoBand,
-      {
-        minHeight: isDesktop ? 580 : isTablet ? 450 : 300,
-        marginBottom: isDesktop ? 120 : isTablet ? 104 : 576,
-        paddingHorizontal: isDesktop ? 16 : isTablet ? 32 : 20,
-      },
-    ]}
-  >
-    <View
+const ContactInfoBand = ({
+  isTablet,
+  isDesktop,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
+  const bandRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset,
+    translateY: 30,
+    initialScale: 0.99,
+  });
+
+  return (
+    <Animated.View style={bandRevealStyle}>
+      <ImageBackground
+        source={ASSETS.infoBackground}
+        resizeMode="cover"
+        imageStyle={styles.infoBandImage}
+        style={[
+          styles.infoBand,
+          {
+            minHeight: isDesktop ? 580 : isTablet ? 450 : 300,
+            marginBottom: isDesktop ? 120 : isTablet ? 104 : 576,
+            paddingHorizontal: isDesktop ? 16 : isTablet ? 32 : 20,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.cardGrid,
+            {
+              flexDirection: isTablet ? 'row' : 'column',
+              gap: isDesktop ? 30 : isTablet ? 20 : 15,
+              marginBottom: isDesktop ? -128 : isTablet ? -104 : -576,
+            },
+          ]}
+        >
+          {contactCards.map((card, index) => (
+            <InfoCard
+              key={card.title}
+              card={card}
+              index={index}
+              isTablet={isTablet}
+              scrollY={scrollY}
+              viewportHeight={viewportHeight}
+              startOffset={startOffset + 140 + index * 45}
+            />
+          ))}
+        </View>
+      </ImageBackground>
+    </Animated.View>
+  );
+};
+
+const InfoCard = ({
+  card,
+  index,
+  isTablet,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
+  const cardRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset,
+    translateY: 36 + index * 8,
+    initialScale: 0.94,
+  });
+
+  return (
+    <Animated.View
       style={[
-        styles.cardGrid,
+        styles.infoCard,
         {
-          flexDirection: isTablet ? 'row' : 'column',
-          gap: isDesktop ? 30 : isTablet ? 20 : 15,
-          marginBottom: isDesktop ? -128 : isTablet ? -104 : -576,
+          padding: isTablet ? 50 : 30,
+          paddingBottom: card.title === 'Call Us' && 45,
+          alignItems: isTablet ? 'stretch' : 'center',
         },
+        cardRevealStyle,
       ]}
     >
-      {contactCards.map(card => (
-        <InfoCard key={card.title} card={card} isTablet={isTablet} />
-      ))}
-    </View>
-  </ImageBackground>
-);
+      <Text style={[styles.infoIcon, { fontSize: isTablet ? 50 : 35 }]}>
+        {card.icon}
+      </Text>
+      <Text style={styles.infoTitle}>{card.title}</Text>
+      <Text style={[styles.infoBody, !isTablet && styles.infoBodyCentered]}>
+        {card.body}
+      </Text>
+    </Animated.View>
+  );
+};
 
-const InfoCard = ({ card, isTablet }) => (
-  <View
-    style={[
-      styles.infoCard,
-      {
-        padding: isTablet ? 50 : 30,
-        paddingBottom: card.title == 'Call Us' && 45,
-        alignItems: isTablet ? 'stretch' : 'center',
-      },
-    ]}
-  >
-    <Text style={[styles.infoIcon, { fontSize: isTablet ? 50 : 35 }]}>
-      {card.icon}
-    </Text>
-    <Text style={styles.infoTitle}>{card.title}</Text>
-    <Text style={[styles.infoBody, !isTablet && styles.infoBodyCentered]}>
-      {card.body}
-    </Text>
-  </View>
-);
+const useRevealStyle = ({
+  scrollY,
+  viewportHeight,
+  startOffset,
+  translateY,
+  initialScale,
+}) =>
+  useAnimatedStyle(() => {
+    const viewportBottom = scrollY.value + viewportHeight;
+    const progress = interpolate(
+      viewportBottom,
+      [startOffset, startOffset + viewportHeight * 0.42],
+      [0, 1],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      opacity: interpolate(progress, [0, 1], [0, 1], Extrapolation.CLAMP),
+      transform: [
+        {
+          translateY: interpolate(
+            progress,
+            [0, 1],
+            [translateY, 0],
+            Extrapolation.CLAMP,
+          ),
+        },
+        {
+          scale: interpolate(
+            progress,
+            [0, 1],
+            [initialScale, 1],
+            Extrapolation.CLAMP,
+          ),
+        },
+      ],
+    };
+  });
 
 const styles = StyleSheet.create({
   header: {
@@ -493,6 +650,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   mapPanel: {
+    flex: 1,
     borderRadius: 10,
     overflow: 'hidden',
     backgroundColor: '#DDE4E8',

@@ -2,13 +2,21 @@ import React from 'react';
 import {
   Image,
   ImageBackground,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
+import Animated, {
+  Extrapolation,
+  FadeInDown,
+  FadeInUp,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import IMAGES from '../assets/images';
 
@@ -102,27 +110,65 @@ const choiceItems = [
 ];
 
 const Services = ({ navigation }) => {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const scrollY = useSharedValue(0);
   const isTablet = width >= 768;
   const isDesktop = width >= 1025;
+  const scrollHandler = useAnimatedScrollHandler(event => {
+    scrollY.value = event.contentOffset.y;
+  });
+
+  const headerHeight = 102 + insets.top;
+  const heroHeight = isTablet ? 416 : 240;
+  const introStart = headerHeight + heroHeight;
+  const introHeight = isDesktop ? 724 : isTablet ? 690 : 640;
+  const servicesStart = introStart + introHeight;
+  const servicesHeight = isDesktop ? 720 : isTablet ? 1680 : 1700;
+  const partnersStart = servicesStart + servicesHeight;
+  const partnersHeight = isDesktop ? 660 : isTablet ? 640 : 610;
+  const whyStart = partnersStart + partnersHeight;
 
   return (
-    <ScrollView
+    <Animated.ScrollView
       style={styles.container}
       showsVerticalScrollIndicator={false}
       stickyHeaderIndices={[0]}
+      onScroll={scrollHandler}
+      scrollEventThrottle={32}
     >
       <Header isTablet={isTablet} navigation={navigation} />
       <PageHero isTablet={isTablet} />
-      <IntroSection isTablet={isTablet} isDesktop={isDesktop} />
+      <IntroSection
+        isTablet={isTablet}
+        isDesktop={isDesktop}
+        scrollY={scrollY}
+        viewportHeight={height}
+        startOffset={introStart}
+      />
       <ServicesGrid
         isTablet={isTablet}
         isDesktop={isDesktop}
         navigation={navigation}
+        scrollY={scrollY}
+        viewportHeight={height}
+        startOffset={servicesStart}
       />
-      <PartnersSection isTablet={isTablet} isDesktop={isDesktop} />
-      <WhyChooseSection isTablet={isTablet} isDesktop={isDesktop} />
-    </ScrollView>
+      <PartnersSection
+        isTablet={isTablet}
+        isDesktop={isDesktop}
+        scrollY={scrollY}
+        viewportHeight={height}
+        startOffset={partnersStart}
+      />
+      <WhyChooseSection
+        isTablet={isTablet}
+        isDesktop={isDesktop}
+        scrollY={scrollY}
+        viewportHeight={height}
+        startOffset={whyStart}
+      />
+    </Animated.ScrollView>
   );
 };
 
@@ -200,277 +246,499 @@ const PageHero = ({ isTablet }) => (
     ]}
   >
     <View style={styles.heroOverlay} />
-    <View style={styles.heroInner}>
-      <Text style={[styles.heroTitle, { fontSize: isTablet ? 50 : 35 }]}>
+    <Animated.View
+      entering={FadeInUp.duration(780).delay(120).springify().damping(18)}
+      style={styles.heroInner}
+    >
+      <Animated.Text
+        entering={FadeInDown.duration(650).delay(240)}
+        style={[styles.heroTitle, { fontSize: isTablet ? 50 : 35 }]}
+      >
         Services
-      </Text>
-    </View>
+      </Animated.Text>
+    </Animated.View>
   </ImageBackground>
 );
 
-const IntroSection = ({ isTablet, isDesktop }) => (
-  <ImageBackground
-    source={ASSETS.pattern}
-    resizeMode="repeat"
-    style={[
-      styles.introShell,
-      {
-        paddingHorizontal: isDesktop ? 16 : isTablet ? 40 : 20,
-        paddingVertical: isDesktop ? 112 : isTablet ? 70 : 50,
-      },
-    ]}
-  >
-    <View style={styles.whiteWash} />
-    <View
+const IntroSection = ({
+  isTablet,
+  isDesktop,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
+  const copyRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset + 40,
+    translateY: 42,
+    initialScale: 0.97,
+  });
+  const imageRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset + 120,
+    translateY: 54,
+    initialScale: 0.94,
+  });
+
+  return (
+    <ImageBackground
+      source={ASSETS.pattern}
+      resizeMode="repeat"
       style={[
-        styles.splitInner,
+        styles.introShell,
         {
-          flexDirection: isDesktop ? 'row' : 'column',
-          gap: isDesktop ? 80 : isTablet ? 64 : 48,
+          paddingHorizontal: isDesktop ? 16 : isTablet ? 40 : 20,
+          paddingVertical: isDesktop ? 112 : isTablet ? 70 : 50,
         },
       ]}
     >
-      <View style={styles.copyColumn}>
-        <Text style={styles.kicker}>Our Services</Text>
+      <View style={styles.whiteWash} />
+      <View
+        style={[
+          styles.splitInner,
+          {
+            flexDirection: isDesktop ? 'row' : 'column',
+            gap: isDesktop ? 80 : isTablet ? 64 : 48,
+          },
+        ]}
+      >
+        <Animated.View style={[styles.copyColumn, copyRevealStyle]}>
+          <Text style={styles.kicker}>Our Services</Text>
+          <Text
+            style={[
+              styles.largeTitle,
+              {
+                fontSize: isDesktop ? 50 : isTablet ? 45 : 30,
+                lineHeight: isDesktop ? 57 : isTablet ? 44 : 40,
+              },
+            ]}
+          >
+            Hair solutions that feel right for you
+          </Text>
+          <Text style={styles.bodyText}>
+            We provide state of the art, bespoke hair systems and cosmetic hair
+            solutions for hair loss and thinning hair, focusing on.
+          </Text>
+          <View style={styles.featureList}>
+            {serviceFeatures.map((item, index) => (
+              <Animated.View
+                key={item}
+                entering={FadeInUp.duration(480).delay(300 + index * 70)}
+                style={styles.featureRow}
+              >
+                <Text style={styles.bullet}>•</Text>
+                <Text style={styles.featureText}>{item}</Text>
+              </Animated.View>
+            ))}
+          </View>
+          <TouchableOpacity style={styles.primaryButton} activeOpacity={0.82}>
+            <Text style={styles.primaryButtonText}>Discover More</Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        <Animated.View style={[styles.imageColumn, imageRevealStyle]}>
+          <View
+            style={[
+              styles.dottedFrame,
+              {
+                width: isDesktop ? '91%' : isTablet ? '94%' : '86%',
+                height: isDesktop ? 340 : isTablet ? 365 : 210,
+                top: isDesktop ? -25 : -15,
+              },
+            ]}
+          />
+          <Image
+            source={ASSETS.intro}
+            style={[
+              styles.introImage,
+              {
+                height: isDesktop ? 500 : isTablet ? 410 : 235,
+                marginRight: isDesktop ? 25 : 20,
+              },
+            ]}
+          />
+        </Animated.View>
+      </View>
+    </ImageBackground>
+  );
+};
+
+const ServicesGrid = ({
+  isTablet,
+  isDesktop,
+  navigation,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
+  const titleRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset + 20,
+    translateY: 30,
+    initialScale: 0.98,
+  });
+
+  return (
+    <View
+      style={[
+        styles.servicesShell,
+        {
+          paddingHorizontal: isDesktop ? 16 : isTablet ? 30 : 20,
+          paddingTop: isDesktop ? 80 : isTablet ? 50 : 40,
+          paddingBottom: isDesktop ? 80 : 50,
+        },
+      ]}
+    >
+      <Animated.Text
+        style={[
+          styles.centerTitle,
+          { fontSize: isDesktop ? 50 : isTablet ? 45 : 30 },
+          titleRevealStyle,
+        ]}
+      >
+        Our Services
+      </Animated.Text>
+      <View
+        style={[
+          styles.cardGrid,
+          {
+            flexDirection: isDesktop ? 'row' : 'column',
+            gap: isDesktop ? 25 : 20,
+          },
+        ]}
+      >
+        {serviceCards.map((card, index) => (
+          <ServiceCard
+            key={card.title}
+            card={card}
+            index={index}
+            isDesktop={isDesktop}
+            navigation={navigation}
+            scrollY={scrollY}
+            viewportHeight={viewportHeight}
+            startOffset={startOffset + 120 + index * (isDesktop ? 50 : 360)}
+          />
+        ))}
+      </View>
+    </View>
+  );
+};
+
+const ServiceCard = ({
+  card,
+  index,
+  isDesktop,
+  navigation,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
+  const cardRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset,
+    translateY: 44 + index * 6,
+    initialScale: 0.94,
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.serviceCard,
+        {
+          width: isDesktop ? '31.9%' : '100%',
+        },
+        cardRevealStyle,
+      ]}
+    >
+      <Image source={card.image} style={styles.cardImage} />
+      <View style={styles.cardBody}>
+        <Text style={styles.cardTitle}>{card.title}</Text>
+        <Text style={styles.cardText}>{card.body}</Text>
+        <TouchableOpacity
+          style={styles.cardButton}
+          activeOpacity={0.82}
+          onPress={() => navigation.navigate(card.route)}
+        >
+          <Text style={styles.cardButtonText}>Learn more</Text>
+        </TouchableOpacity>
+      </View>
+    </Animated.View>
+  );
+};
+
+const PartnersSection = ({
+  isTablet,
+  isDesktop,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
+  const titleRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset,
+    translateY: 30,
+    initialScale: 0.98,
+  });
+  const globeRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset + 220,
+    translateY: 42,
+    initialScale: 0.96,
+  });
+
+  return (
+    <View
+      style={[
+        styles.partnersShell,
+        {
+          paddingHorizontal: isDesktop ? 16 : isTablet ? 30 : 20,
+          paddingBottom: isTablet ? 20 : 20,
+        },
+      ]}
+    >
+      <Animated.Text
+        style={[
+          styles.partnerTitle,
+          {
+            fontSize: isDesktop ? 50 : isTablet ? 45 : 30,
+            lineHeight: isDesktop ? 57 : isTablet ? 46 : 40,
+          },
+          titleRevealStyle,
+        ]}
+      >
+        Working with our professional partners:
+      </Animated.Text>
+      <View style={styles.logoGrid}>
+        {partnerLogos.map((source, index) => (
+          <PartnerLogo
+            key={index}
+            source={source}
+            index={index}
+            scrollY={scrollY}
+            viewportHeight={viewportHeight}
+            startOffset={startOffset + 90 + index * 20}
+          />
+        ))}
+      </View>
+      <Animated.Image
+        source={ASSETS.globe}
+        style={[
+          styles.globeImage,
+          {
+            width: isDesktop ? '70%' : isTablet ? '86%' : '100%',
+            height: isDesktop ? 560 : isTablet ? 500 : 330,
+            marginBottom: isTablet ? 0 : 80,
+          },
+          globeRevealStyle,
+        ]}
+      />
+    </View>
+  );
+};
+
+const PartnerLogo = ({source, index, scrollY, viewportHeight, startOffset}) => {
+  const logoRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset,
+    translateY: 20 + (index % 3) * 4,
+    initialScale: 0.9,
+  });
+
+  return (
+    <Animated.View style={[styles.logoTile, logoRevealStyle]}>
+      <Image source={source} style={styles.partnerLogo} />
+    </Animated.View>
+  );
+};
+
+const WhyChooseSection = ({
+  isTablet,
+  isDesktop,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
+  const imageRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset,
+    translateY: 46,
+    initialScale: 0.95,
+  });
+  const copyRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset + 90,
+    translateY: 38,
+    initialScale: 0.97,
+  });
+
+  return (
+    <View
+      style={[
+        styles.whyShell,
+        {
+          flexDirection: isDesktop ? 'row' : 'column-reverse',
+          gap: isDesktop ? 80 : isTablet ? 48 : 32,
+          paddingHorizontal: isDesktop ? 16 : isTablet ? 30 : 20,
+          paddingTop: isDesktop ? 80 : isTablet ? 50 : 32,
+          paddingBottom: isDesktop ? 112 : isTablet ? 50 : 40,
+        },
+      ]}
+    >
+      <Animated.View style={[styles.whyImageColumn, imageRevealStyle]}>
+        <Image
+          source={ASSETS.why}
+          style={[
+            styles.whyImage,
+            {
+              height: isDesktop ? 800 : isTablet ? 620 : 390,
+            },
+          ]}
+        />
+      </Animated.View>
+      <Animated.View style={[styles.whyCopy, copyRevealStyle]}>
+        <Text style={styles.kicker}>Why choose us</Text>
         <Text
           style={[
             styles.largeTitle,
             {
               fontSize: isDesktop ? 50 : isTablet ? 45 : 30,
-              lineHeight: isDesktop ? 57 : isTablet ? 44 : 40,
+              lineHeight: isDesktop ? 57 : isTablet ? 52 : 40,
             },
           ]}
         >
-          Hair solutions that feel right for you
+          Hair Systems Designed for Confidence & Natural Results
         </Text>
         <Text style={styles.bodyText}>
-          We provide state of the art, bespoke hair systems and cosmetic hair
-          solutions for hair loss and thinning hair, focusing on.
+          We specialise in premium, natural-looking hair systems designed for
+          men and women experiencing hair loss or thinning. Our approach focuses
+          on precision, discretion and delivering results that restore
+          confidence without surgical procedures.
         </Text>
-        <View style={styles.featureList}>
-          {serviceFeatures.map(item => (
-            <View key={item} style={styles.featureRow}>
-              <Text style={styles.bullet}>•</Text>
-              <Text style={styles.featureText}>{item}</Text>
-            </View>
-          ))}
-        </View>
-        <TouchableOpacity style={styles.primaryButton} activeOpacity={0.82}>
-          <Text style={styles.primaryButtonText}>Discover More</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.imageColumn}>
-        <View
-          style={[
-            styles.dottedFrame,
-            {
-              width: isDesktop ? '91%' : isTablet ? '94%' : '86%',
-              height: isDesktop ? 340 : isTablet ? 365 : 210,
-              top: isDesktop ? -25 : -15,
-            },
-          ]}
-        />
-        <Image
-          source={ASSETS.intro}
-          style={[
-            styles.introImage,
-            {
-              height: isDesktop ? 500 : isTablet ? 410 : 235,
-              marginRight: isDesktop ? 25 : 20,
-            },
-          ]}
-        />
-      </View>
+        {choiceItems.map((item, index) => (
+          <ChoiceItem
+            key={item.title}
+            item={item}
+            index={index}
+            isMiddle={index === 1}
+            isTablet={isTablet}
+            scrollY={scrollY}
+            viewportHeight={viewportHeight}
+            startOffset={startOffset + 220 + index * 95}
+          />
+        ))}
+      </Animated.View>
     </View>
-  </ImageBackground>
-);
+  );
+};
 
-const ServicesGrid = ({ isTablet, isDesktop, navigation }) => (
-  <View
-    style={[
-      styles.servicesShell,
-      {
-        paddingHorizontal: isDesktop ? 16 : isTablet ? 30 : 20,
-        paddingTop: isDesktop ? 80 : isTablet ? 50 : 40,
-        paddingBottom: isDesktop ? 80 : 50,
-      },
-    ]}
-  >
-    <Text
-      style={[
-        styles.centerTitle,
-        { fontSize: isDesktop ? 50 : isTablet ? 45 : 30 },
-      ]}
+const ChoiceItem = ({
+  item,
+  index,
+  isMiddle,
+  isTablet,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
+  const itemRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset,
+    translateY: 26 + index * 5,
+    initialScale: 0.96,
+  });
+
+  return (
+    <Animated.View
+      style={[styles.choiceRow, isMiddle && styles.choiceRowMiddle, itemRevealStyle]}
     >
-      Our Services
-    </Text>
-    <View
-      style={[
-        styles.cardGrid,
-        {
-          flexDirection: isDesktop ? 'row' : 'column',
-          gap: isDesktop ? 25 : 20,
-        },
-      ]}
-    >
-      {serviceCards.map(card => (
-        <ServiceCard
-          key={card.title}
-          card={card}
-          isDesktop={isDesktop}
-          navigation={navigation}
-        />
-      ))}
-    </View>
-  </View>
-);
-
-const ServiceCard = ({ card, isDesktop, navigation }) => (
-  <View
-    style={[
-      styles.serviceCard,
-      {
-        width: isDesktop ? '31.9%' : '100%',
-      },
-    ]}
-  >
-    <Image source={card.image} style={styles.cardImage} />
-    <View style={styles.cardBody}>
-      <Text style={styles.cardTitle}>{card.title}</Text>
-      <Text style={styles.cardText}>{card.body}</Text>
-      <TouchableOpacity
-        style={styles.cardButton}
-        activeOpacity={0.82}
-        onPress={() => navigation.navigate(card.route)}
-      >
-        <Text style={styles.cardButtonText}>Learn more</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
-
-const PartnersSection = ({ isTablet, isDesktop }) => (
-  <View
-    style={[
-      styles.partnersShell,
-      {
-        paddingHorizontal: isDesktop ? 16 : isTablet ? 30 : 20,
-        paddingBottom: isTablet ? 20 : 20,
-      },
-    ]}
-  >
-    <Text
-      style={[
-        styles.partnerTitle,
-        {
-          fontSize: isDesktop ? 50 : isTablet ? 45 : 30,
-          lineHeight: isDesktop ? 57 : isTablet ? 46 : 40,
-        },
-      ]}
-    >
-      Working with our professional partners:
-    </Text>
-    <View style={styles.logoGrid}>
-      {partnerLogos.map((source, index) => (
-        <View key={index} style={styles.logoTile}>
-          <Image source={source} style={styles.partnerLogo} />
-        </View>
-      ))}
-    </View>
-    <Image
-      source={ASSETS.globe}
-      style={[
-        styles.globeImage,
-        {
-          width: isDesktop ? '70%' : isTablet ? '86%' : '100%',
-          height: isDesktop ? 560 : isTablet ? 500 : 330,
-          marginBottom: isTablet ? 0 : 80,
-        },
-      ]}
-    />
-  </View>
-);
-
-const WhyChooseSection = ({ isTablet, isDesktop }) => (
-  <View
-    style={[
-      styles.whyShell,
-      {
-        flexDirection: isDesktop ? 'row' : 'column-reverse',
-        gap: isDesktop ? 80 : isTablet ? 48 : 32,
-        paddingHorizontal: isDesktop ? 16 : isTablet ? 30 : 20,
-        paddingTop: isDesktop ? 80 : isTablet ? 50 : 32,
-        paddingBottom: isDesktop ? 112 : isTablet ? 50 : 40,
-      },
-    ]}
-  >
-    <View style={styles.whyImageColumn}>
-      <Image
-        source={ASSETS.why}
+      <View
         style={[
-          styles.whyImage,
+          styles.choiceIcon,
           {
-            height: isDesktop ? 800 : isTablet ? 620 : 390,
-          },
-        ]}
-      />
-    </View>
-    <View style={styles.whyCopy}>
-      <Text style={styles.kicker}>Why choose us</Text>
-      <Text
-        style={[
-          styles.largeTitle,
-          {
-            fontSize: isDesktop ? 50 : isTablet ? 45 : 30,
-            lineHeight: isDesktop ? 57 : isTablet ? 52 : 40,
+            width: isTablet ? 58 : 48,
+            height: isTablet ? 58 : 48,
+            borderRadius: isTablet ? 29 : 24,
           },
         ]}
       >
-        Hair Systems Designed for Confidence & Natural Results
-      </Text>
-      <Text style={styles.bodyText}>
-        We specialise in premium, natural-looking hair systems designed for men
-        and women experiencing hair loss or thinning. Our approach focuses on
-        precision, discretion and delivering results that restore confidence
-        without surgical procedures.
-      </Text>
-      {choiceItems.map((item, index) => (
-        <ChoiceItem
-          key={item.title}
-          item={item}
-          isMiddle={index === 1}
-          isTablet={isTablet}
-        />
-      ))}
-    </View>
-  </View>
-);
+        <Text style={styles.choiceIconText}>{item.icon}</Text>
+      </View>
+      <View style={styles.choiceTextWrap}>
+        <Text style={[styles.choiceTitle, { fontSize: isTablet ? 25 : 20 }]}>
+          {item.title}
+        </Text>
+        <Text style={[styles.choiceBody, { fontSize: isTablet ? 16 : 14 }]}>
+          {item.body}
+        </Text>
+      </View>
+    </Animated.View>
+  );
+};
 
-const ChoiceItem = ({ item, isMiddle, isTablet }) => (
-  <View style={[styles.choiceRow, isMiddle && styles.choiceRowMiddle]}>
-    <View
-      style={[
-        styles.choiceIcon,
+const useRevealStyle = ({
+  scrollY,
+  viewportHeight,
+  startOffset,
+  translateY,
+  initialScale,
+}) =>
+  useAnimatedStyle(() => {
+    const viewportBottom = scrollY.value + viewportHeight;
+    const revealEnd = startOffset + viewportHeight * 0.42;
+
+    if (viewportBottom <= startOffset) {
+      return {
+        opacity: 0,
+        transform: [{translateY}, {scale: initialScale}],
+      };
+    }
+
+    if (viewportBottom >= revealEnd) {
+      return {
+        opacity: 1,
+        transform: [{translateY: 0}, {scale: 1}],
+      };
+    }
+
+    const progress = interpolate(
+      viewportBottom,
+      [startOffset, revealEnd],
+      [0, 1],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      opacity: interpolate(progress, [0, 1], [0, 1], Extrapolation.CLAMP),
+      transform: [
         {
-          width: isTablet ? 58 : 48,
-          height: isTablet ? 58 : 48,
-          borderRadius: isTablet ? 29 : 24,
+          translateY: interpolate(
+            progress,
+            [0, 1],
+            [translateY, 0],
+            Extrapolation.CLAMP,
+          ),
         },
-      ]}
-    >
-      <Text style={styles.choiceIconText}>{item.icon}</Text>
-    </View>
-    <View style={styles.choiceTextWrap}>
-      <Text style={[styles.choiceTitle, { fontSize: isTablet ? 25 : 20 }]}>
-        {item.title}
-      </Text>
-      <Text style={[styles.choiceBody, { fontSize: isTablet ? 16 : 14 }]}>
-        {item.body}
-      </Text>
-    </View>
-  </View>
-);
+        {
+          scale: interpolate(
+            progress,
+            [0, 1],
+            [initialScale, 1],
+            Extrapolation.CLAMP,
+          ),
+        },
+      ],
+    };
+  });
 
 const styles = StyleSheet.create({
   container: {

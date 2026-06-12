@@ -62,6 +62,8 @@ const testimonials = [
   },
 ];
 
+const STAR_INDICES = [0, 1, 2, 3, 4];
+
 const TestimonialScreen = ({ navigation }) => {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
@@ -183,11 +185,13 @@ const TestimonialsSection = ({ isTablet }) => {
         toValue: 0,
         useNativeDriver: true,
         bounciness: 6,
+        isInteraction: false,
       }),
       Animated.timing(cardOpacity, {
         toValue: 1,
         duration: 180,
         useNativeDriver: true,
+        isInteraction: false,
       }),
     ]).start();
   }, [cardOpacity, translateX]);
@@ -205,13 +209,15 @@ const TestimonialsSection = ({ isTablet }) => {
       Animated.parallel([
         Animated.timing(translateX, {
           toValue: normalizedDirection * -slideDistance,
-          duration: 220,
+          duration: 180,
           useNativeDriver: true,
+          isInteraction: false,
         }),
         Animated.timing(cardOpacity, {
           toValue: 0.4,
-          duration: 220,
+          duration: 180,
           useNativeDriver: true,
+          isInteraction: false,
         }),
       ]).start(() => {
         setActive(wrapped);
@@ -223,11 +229,13 @@ const TestimonialsSection = ({ isTablet }) => {
             toValue: 0,
             useNativeDriver: true,
             bounciness: 5,
+            isInteraction: false,
           }),
           Animated.timing(cardOpacity, {
             toValue: 1,
-            duration: 220,
+            duration: 200,
             useNativeDriver: true,
+            isInteraction: false,
           }),
         ]).start(() => {
           isAnimating.current = false;
@@ -279,7 +287,7 @@ const TestimonialsSection = ({ isTablet }) => {
 
     const timer = setInterval(() => {
       goTo(active + 1, 1);
-    }, 2000);
+    }, 4500);
 
     return () => clearInterval(timer);
   }, [active, goTo]);
@@ -357,7 +365,7 @@ const TestimonialsSection = ({ isTablet }) => {
               <Text style={styles.quoteMark}>“</Text>
               <Text style={styles.quoteText}>{testimonials[active].quote}</Text>
               <View style={styles.starRow}>
-                {Array.from({ length: 5 }).map((_, index) => (
+                {STAR_INDICES.map(index => (
                   <Text key={index} style={styles.star}>
                     ★
                   </Text>

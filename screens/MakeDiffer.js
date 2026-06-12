@@ -2,13 +2,21 @@ import React from 'react';
 import {
   Image,
   ImageBackground,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
+import Animated, {
+  Extrapolation,
+  FadeInDown,
+  FadeInUp,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import IMAGES from '../assets/images';
 
@@ -66,30 +74,69 @@ const differenceCards = [
 ];
 
 const MakeDifferScreen = ({ navigation }) => {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const scrollY = useSharedValue(0);
   const isTablet = width >= 768;
   const isDesktop = width >= 1025;
+  const scrollHandler = useAnimatedScrollHandler(event => {
+    scrollY.value = event.contentOffset.y;
+  });
+
+  const headerHeight = 102 + insets.top;
+  const heroHeight = isDesktop ? 520 : isTablet ? 430 : 300;
+  const whyStart = headerHeight + heroHeight;
+  const whyPaddingTop = isDesktop ? 70 : isTablet ? 70 : 50;
+  const whyTitleHeight = isDesktop ? 50 : isTablet ? 48 : 36;
+  const whyCardTop = whyStart + whyPaddingTop + whyTitleHeight + 30;
+  const cardRowHeight = isTablet ? 240 : 260;
+  const craftStart =
+    whyStart +
+    whyPaddingTop +
+    whyTitleHeight +
+    30 +
+    (isTablet ? 500 : differenceCards.length * cardRowHeight) +
+    (isDesktop ? 70 : isTablet ? 70 : 50);
+  const ctaStart =
+    craftStart +
+    (isDesktop ? 425 : isTablet ? 470 : 265) +
+    (isDesktop ? 112 : isTablet ? 64 : 50);
 
   return (
-    <ScrollView
+    <Animated.ScrollView
       style={styles.container}
       showsVerticalScrollIndicator={false}
       stickyHeaderIndices={[0]}
+      onScroll={scrollHandler}
+      scrollEventThrottle={16}
     >
       <Header isTablet={isTablet} navigation={navigation} />
       <Hero isTablet={isTablet} isDesktop={isDesktop} />
-      <WhyChooseSection isTablet={isTablet} isDesktop={isDesktop} />
+      <WhyChooseSection
+        isTablet={isTablet}
+        isDesktop={isDesktop}
+        scrollY={scrollY}
+        viewportHeight={height}
+        startOffset={whyCardTop}
+        cardRowHeight={cardRowHeight}
+      />
       <CraftSection
         isTablet={isTablet}
         isDesktop={isDesktop}
         navigation={navigation}
+        scrollY={scrollY}
+        viewportHeight={height}
+        startOffset={craftStart}
       />
       <BottomCta
         isTablet={isTablet}
         isDesktop={isDesktop}
         navigation={navigation}
+        scrollY={scrollY}
+        viewportHeight={height}
+        startOffset={ctaStart}
       />
-    </ScrollView>
+    </Animated.ScrollView>
   );
 };
 
@@ -168,8 +215,12 @@ const Hero = ({ isTablet, isDesktop }) => (
     ]}
   >
     <View style={styles.heroOverlay} />
-    <View style={styles.heroInner}>
-      <Text
+    <Animated.View
+      entering={FadeInUp.duration(850).delay(120).springify().damping(18)}
+      style={styles.heroInner}
+    >
+      <Animated.Text
+        entering={FadeInDown.duration(700).delay(240)}
         style={[
           styles.heroTitle,
           {
@@ -179,179 +230,333 @@ const Hero = ({ isTablet, isDesktop }) => (
         ]}
       >
         What Makes Us Different
-      </Text>
-      <Text style={styles.heroBody}>
+      </Animated.Text>
+      <Animated.Text
+        entering={FadeInUp.duration(750).delay(420)}
+        style={styles.heroBody}
+      >
         At Hair Technology, we focus on delivering premium non-surgical hair
         replacement solutions designed with precision and craftsmanship. What
         sets us apart is our commitment to natural appearance, discreet service
         and fully customised hair systems designed around each client's
         individual style and expectations.
-      </Text>
-    </View>
+      </Animated.Text>
+    </Animated.View>
   </ImageBackground>
 );
 
-const WhyChooseSection = ({ isTablet, isDesktop }) => (
-  <View
-    style={[
-      styles.chooseSection,
-      {
-        paddingHorizontal: isDesktop ? 16 : isTablet ? 30 : 20,
-        paddingTop: isDesktop ? 70 : isTablet ? 70 : 50,
-        paddingBottom: isDesktop ? 70 : isTablet ? 70 : 50,
-      },
-    ]}
-  >
-    <Text
-      style={[
-        styles.centerTitle,
-        {
-          fontSize: isDesktop ? 50 : isTablet ? 45 : 30,
-          lineHeight: isDesktop ? 50 : isTablet ? 48 : 36,
-        },
-      ]}
-    >
-      Why Choose Us
-    </Text>
+const WhyChooseSection = ({
+  isTablet,
+  isDesktop,
+  scrollY,
+  viewportHeight,
+  startOffset,
+  cardRowHeight,
+}) => (
+  <WhyChooseContent
+    isTablet={isTablet}
+    isDesktop={isDesktop}
+    scrollY={scrollY}
+    viewportHeight={viewportHeight}
+    startOffset={startOffset}
+    cardRowHeight={cardRowHeight}
+  />
+);
+
+const WhyChooseContent = ({
+  isTablet,
+  isDesktop,
+  scrollY,
+  viewportHeight,
+  startOffset,
+  cardRowHeight,
+}) => {
+  const titleRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset - 80,
+    translateY: 28,
+    initialScale: 0.98,
+  });
+
+  return (
     <View
       style={[
-        styles.cardGrid,
+        styles.chooseSection,
         {
-          flexDirection: isTablet ? 'row' : 'column',
-          gap: isTablet ? 20 : 18,
+          paddingHorizontal: isDesktop ? 16 : isTablet ? 30 : 20,
+          paddingTop: isDesktop ? 70 : isTablet ? 70 : 50,
+          paddingBottom: isDesktop ? 70 : isTablet ? 70 : 50,
         },
       ]}
     >
-      {differenceCards.map(card => (
-        <DifferenceCard key={card.title} card={card} isTablet={isTablet} />
-      ))}
-    </View>
-  </View>
-);
-
-const DifferenceCard = ({ card, isTablet }) => (
-  <View
-    style={[
-      styles.differenceCard,
-      {
-        width: isTablet ? '31.7%' : '100%',
-        minHeight: isTablet ? 220 : 0,
-      },
-    ]}
-  >
-    <Text style={[styles.cardTitle, { fontSize: isTablet ? 25 : 22 }]}>
-      {card.title}
-    </Text>
-    <Text style={styles.cardBody}>{card.body}</Text>
-  </View>
-);
-
-const CraftSection = ({ isTablet, isDesktop, navigation }) => (
-  <View
-    style={[
-      styles.craftSection,
-      {
-        flexDirection: isDesktop ? 'row' : 'column',
-        gap: isDesktop ? 80 : isTablet ? 64 : 40,
-        paddingHorizontal: isDesktop ? 16 : isTablet ? 32 : 20,
-        paddingBottom: isDesktop ? 112 : isTablet ? 64 : 50,
-      },
-    ]}
-  >
-    <View style={styles.craftCopy}>
-      <Text
+      <Animated.Text
         style={[
-          styles.sectionTitle,
+          styles.centerTitle,
           {
             fontSize: isDesktop ? 50 : isTablet ? 45 : 30,
-            lineHeight: isDesktop ? 63 : isTablet ? 54 : 38,
+            lineHeight: isDesktop ? 50 : isTablet ? 48 : 36,
           },
+          titleRevealStyle,
         ]}
       >
-        Natural Appearance with Expert Craftsmanship
-      </Text>
-      <Text style={styles.bodyText}>
-        We combine advanced hair system technology with personalised
-        consultation to help you achieve a fuller, natural-looking appearance.
-        From initial assessment to precision fitting and ongoing maintenance,
-        our specialists focus on comfort, realism and long-lasting results.
-      </Text>
-      <TouchableOpacity
-        style={styles.primaryButton}
-        activeOpacity={0.82}
-        onPress={() => navigation.navigate('Contact')}
-      >
-        <Text style={styles.primaryButtonText}>Book a Consultation</Text>
-      </TouchableOpacity>
-    </View>
-    <View style={styles.craftImageColumn}>
+        Why Choose Us
+      </Animated.Text>
       <View
         style={[
-          styles.imagePad,
+          styles.cardGrid,
           {
-            paddingRight: isDesktop ? 25 : 15,
-            paddingBottom: isDesktop ? 25 : 15,
+            flexDirection: isTablet ? 'row' : 'column',
+            gap: isTablet ? 20 : 18,
           },
         ]}
       >
-        <Image
-          source={ASSETS.craft}
-          style={[
-            styles.craftImage,
-            {
-              height: isDesktop ? 425 : isTablet ? 470 : 265,
-            },
-          ]}
-        />
+        {differenceCards.map((card, index) => (
+          <DifferenceCard
+            key={card.title}
+            card={card}
+            index={index}
+            isTablet={isTablet}
+            scrollY={scrollY}
+            viewportHeight={viewportHeight}
+            startOffset={
+              startOffset +
+              (isTablet ? Math.floor(index / 3) : index) * cardRowHeight
+            }
+          />
+        ))}
       </View>
     </View>
-  </View>
-);
+  );
+};
 
-const BottomCta = ({ isTablet, isDesktop, navigation }) => (
-  <ImageBackground
-    source={ASSETS.bottomCta}
-    resizeMode="cover"
-    imageStyle={styles.ctaImage}
-    style={[
-      styles.bottomCta,
-      {
-        minHeight: isDesktop ? 530 : isTablet ? 430 : 300,
-        paddingVertical: isDesktop ? 144 : isTablet ? 80 : 48,
-        paddingHorizontal: isDesktop ? 16 : isTablet ? 32 : 20,
-      },
-    ]}
-  >
-    <View style={styles.ctaOverlay} />
-    <View style={[styles.ctaInner, { width: isDesktop ? '85%' : '100%' }]}>
-      <Text
+const DifferenceCard = ({
+  card,
+  index,
+  isTablet,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
+  const animatedStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset,
+    translateY: 38 + (index % 3) * 8,
+    initialScale: 0.94,
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.differenceCard,
+        {
+          width: isTablet ? '31.7%' : '100%',
+          minHeight: isTablet ? 220 : 0,
+        },
+        animatedStyle,
+      ]}
+    >
+      <Text style={[styles.cardTitle, { fontSize: isTablet ? 25 : 22 }]}>
+        {card.title}
+      </Text>
+      <Text style={styles.cardBody}>{card.body}</Text>
+    </Animated.View>
+  );
+};
+
+const CraftSection = ({
+  isTablet,
+  isDesktop,
+  navigation,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
+  const copyRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset,
+    translateY: 45,
+    initialScale: 0.97,
+  });
+  const imageRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset + 80,
+    translateY: 55,
+    initialScale: 0.92,
+  });
+
+  return (
+    <View
+      style={[
+        styles.craftSection,
+        {
+          flexDirection: isDesktop ? 'row' : 'column',
+          gap: isDesktop ? 80 : isTablet ? 64 : 40,
+          paddingHorizontal: isDesktop ? 16 : isTablet ? 32 : 20,
+          paddingBottom: isDesktop ? 112 : isTablet ? 64 : 50,
+        },
+      ]}
+    >
+      <Animated.View style={[styles.craftCopy, copyRevealStyle]}>
+        <Text
+          style={[
+            styles.sectionTitle,
+            {
+              fontSize: isDesktop ? 50 : isTablet ? 45 : 30,
+              lineHeight: isDesktop ? 63 : isTablet ? 54 : 38,
+            },
+          ]}
+        >
+          Natural Appearance with Expert Craftsmanship
+        </Text>
+        <Text style={styles.bodyText}>
+          We combine advanced hair system technology with personalised
+          consultation to help you achieve a fuller, natural-looking appearance.
+          From initial assessment to precision fitting and ongoing maintenance,
+          our specialists focus on comfort, realism and long-lasting results.
+        </Text>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          activeOpacity={0.82}
+          onPress={() => navigation.navigate('Contact')}
+        >
+          <Text style={styles.primaryButtonText}>Book a Consultation</Text>
+        </TouchableOpacity>
+      </Animated.View>
+      <Animated.View style={[styles.craftImageColumn, imageRevealStyle]}>
+        <View
+          style={[
+            styles.imagePad,
+            {
+              paddingRight: isDesktop ? 25 : 15,
+              paddingBottom: isDesktop ? 25 : 15,
+            },
+          ]}
+        >
+          <Image
+            source={ASSETS.craft}
+            style={[
+              styles.craftImage,
+              {
+                height: isDesktop ? 425 : isTablet ? 470 : 265,
+              },
+            ]}
+          />
+        </View>
+      </Animated.View>
+    </View>
+  );
+};
+
+const BottomCta = ({
+  isTablet,
+  isDesktop,
+  navigation,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
+  const ctaRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset,
+    translateY: 36,
+    initialScale: 0.96,
+  });
+
+  return (
+    <ImageBackground
+      source={ASSETS.bottomCta}
+      resizeMode="cover"
+      imageStyle={styles.ctaImage}
+      style={[
+        styles.bottomCta,
+        {
+          minHeight: isDesktop ? 530 : isTablet ? 430 : 300,
+          paddingVertical: isDesktop ? 144 : isTablet ? 80 : 48,
+          paddingHorizontal: isDesktop ? 16 : isTablet ? 32 : 20,
+        },
+      ]}
+    >
+      <View style={styles.ctaOverlay} />
+      <Animated.View
         style={[
-          styles.ctaTitle,
-          {
-            fontSize: isDesktop ? 45 : isTablet ? 45 : 30,
-            lineHeight: isDesktop ? 56 : isTablet ? 52 : 38,
-          },
+          styles.ctaInner,
+          { width: isDesktop ? '85%' : '100%' },
+          ctaRevealStyle,
         ]}
       >
-        Confidence Begins with Natural-Looking Hair
-      </Text>
-      <Text style={[styles.ctaBody, { width: isTablet ? '85%' : '100%' }]}>
-        Take the first step towards a solution designed entirely around you. Our
-        personalised hair system consultations focus on understanding your
-        appearance goals, lifestyle and styling preferences to create a natural,
-        seamless result that enhances confidence without compromising comfort or
-        authenticity.
-      </Text>
-      <TouchableOpacity
-        style={styles.primaryButton}
-        activeOpacity={0.82}
-        onPress={() => navigation.navigate('Contact')}
-      >
-        <Text style={styles.primaryButtonText}>Book a Consultation</Text>
-      </TouchableOpacity>
-    </View>
-  </ImageBackground>
-);
+        <Text
+          style={[
+            styles.ctaTitle,
+            {
+              fontSize: isDesktop ? 45 : isTablet ? 45 : 30,
+              lineHeight: isDesktop ? 56 : isTablet ? 52 : 38,
+            },
+          ]}
+        >
+          Confidence Begins with Natural-Looking Hair
+        </Text>
+        <Text style={[styles.ctaBody, { width: isTablet ? '85%' : '100%' }]}>
+          Take the first step towards a solution designed entirely around you.
+          Our personalised hair system consultations focus on understanding your
+          appearance goals, lifestyle and styling preferences to create a
+          natural, seamless result that enhances confidence without compromising
+          comfort or authenticity.
+        </Text>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          activeOpacity={0.82}
+          onPress={() => navigation.navigate('Contact')}
+        >
+          <Text style={styles.primaryButtonText}>Book a Consultation</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    </ImageBackground>
+  );
+};
+
+const useRevealStyle = ({
+  scrollY,
+  viewportHeight,
+  startOffset,
+  translateY,
+  initialScale,
+}) =>
+  useAnimatedStyle(() => {
+    const viewportBottom = scrollY.value + viewportHeight;
+    const progress = interpolate(
+      viewportBottom,
+      [startOffset, startOffset + viewportHeight * 0.42],
+      [0, 1],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      opacity: interpolate(progress, [0, 1], [0, 1], Extrapolation.CLAMP),
+      transform: [
+        {
+          translateY: interpolate(
+            progress,
+            [0, 1],
+            [translateY, 0],
+            Extrapolation.CLAMP,
+          ),
+        },
+        {
+          scale: interpolate(
+            progress,
+            [0, 1],
+            [initialScale, 1],
+            Extrapolation.CLAMP,
+          ),
+        },
+      ],
+    };
+  });
 
 const styles = StyleSheet.create({
   container: {

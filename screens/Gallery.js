@@ -1,14 +1,17 @@
-import React from 'react';
+import React, {memo, useCallback} from 'react';
 import {
   Image,
   ImageBackground,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
+import Animated, {
+  FadeInLeft,
+  FadeInRight,
+} from 'react-native-reanimated';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import IMAGES from '../assets/images';
 
@@ -60,17 +63,49 @@ const Gallery = ({ navigation }) => {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const isDesktop = width >= 1025;
+  const imageHeight = isDesktop ? 620 : isTablet ? 500 : 260;
+
+  const renderGalleryImage = useCallback(
+    ({item, index}) => (
+      <GalleryImageItem
+        source={item}
+        index={index}
+        imageHeight={imageHeight}
+        topPadding={isTablet ? 40 : 30}
+      />
+    ),
+    [imageHeight, isTablet],
+  );
 
   return (
-    <ScrollView
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      stickyHeaderIndices={[0]}
-    >
+    <View style={styles.container}>
       <Header isTablet={isTablet} navigation={navigation} />
-      <PageHero isTablet={isTablet} />
-      <GallerySection isTablet={isTablet} isDesktop={isDesktop} />
-    </ScrollView>
+      <Animated.FlatList
+        data={galleryImages}
+        renderItem={renderGalleryImage}
+        keyExtractor={(_, index) => String(index)}
+        ListHeaderComponent={
+          <>
+            <PageHero isTablet={isTablet} />
+            <GalleryTitle isTablet={isTablet} isDesktop={isDesktop} />
+          </>
+        }
+        contentContainerStyle={[
+          styles.galleryListContent,
+          {
+            paddingBottom: isDesktop ? 80 : isTablet ? 50 : 30,
+            paddingHorizontal: isDesktop ? 0 : isTablet ? 30 : 20,
+          },
+        ]}
+        initialNumToRender={3}
+        maxToRenderPerBatch={2}
+        removeClippedSubviews
+        scrollEventThrottle={32}
+        showsVerticalScrollIndicator={false}
+        updateCellsBatchingPeriod={80}
+        windowSize={5}
+      />
+    </View>
   );
 };
 
@@ -156,7 +191,7 @@ const PageHero = ({ isTablet }) => (
   </ImageBackground>
 );
 
-const GallerySection = ({ isTablet, isDesktop }) => (
+const GalleryTitle = ({isTablet, isDesktop}) => (
   <View style={styles.galleryShell}>
     <View
       style={[
@@ -179,33 +214,40 @@ const GallerySection = ({ isTablet, isDesktop }) => (
         Before & After Gallery
       </Text>
     </View>
-    <View
-      style={[
-        styles.imageList,
-        {
-          paddingTop: isTablet ? 40 : 30,
-          paddingBottom: isDesktop ? 80 : isTablet ? 50 : 30,
-          paddingHorizontal: isDesktop ? 0 : isTablet ? 30 : 20,
-        },
-      ]}
-    >
-      {galleryImages.map((source, index) => (
-        <View key={index} style={styles.imageRow}>
-          <Image
-            source={source}
-            style={[
-              styles.galleryImage,
-              {
-                height: isDesktop ? 620 : isTablet ? 500 : 260,
-              },
-            ]}
-            resizeMode="cover"
-          />
-        </View>
-      ))}
-    </View>
   </View>
 );
+
+const GalleryImageItem = memo(({source, index, imageHeight, topPadding}) => {
+  const entering = index % 2 === 0 ? FadeInLeft : FadeInRight;
+
+  return (
+    <View style={styles.galleryShell}>
+      <View
+        style={[
+          styles.imageList,
+          {
+            paddingTop: index === 0 ? topPadding : 0,
+          },
+        ]}
+      >
+        <Animated.View
+          entering={entering.duration(360).delay((index % 3) * 45)}
+          renderToHardwareTextureAndroid
+          shouldRasterizeIOS
+          style={styles.imageRow}
+        >
+          <Image
+            source={source}
+            style={[styles.galleryImage, { height: imageHeight }]}
+            resizeMode="cover"
+          />
+        </Animated.View>
+      </View>
+    </View>
+  );
+});
+
+GalleryImageItem.displayName = 'GalleryImageItem';
 
 const styles = StyleSheet.create({
   container: {
@@ -285,6 +327,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   galleryShell: {
+    backgroundColor: COLORS.lightPanel,
+  },
+  galleryListContent: {
     backgroundColor: COLORS.lightPanel,
   },
   titleWrap: {

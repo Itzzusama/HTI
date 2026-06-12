@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Image,
   ImageBackground,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -10,6 +9,15 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import Animated, {
+  Extrapolation,
+  FadeInDown,
+  FadeInUp,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IMAGES from '../assets/images';
 
@@ -76,9 +84,20 @@ const formFields = [
 ];
 
 const HomeScreen = ({ activeScreen = 'Home', onNavigate, navigation }) => {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const scrollY = useSharedValue(0);
   const isTablet = width >= 768;
   const horizontal = isTablet ? 40 : 20;
+  const scrollHandler = useAnimatedScrollHandler(event => {
+    scrollY.value = event.contentOffset.y;
+  });
+
+  const headerHeight = 102 + insets.top;
+  const heroHeight = isTablet ? 720 : 650;
+  const aboutStart = headerHeight + heroHeight;
+  const statsStart = aboutStart + (isTablet ? 620 : 860);
+  const appointmentStart = statsStart + (isTablet ? 980 : 1120);
 
   const handleNavigate = screen => {
     if (
@@ -99,23 +118,43 @@ const HomeScreen = ({ activeScreen = 'Home', onNavigate, navigation }) => {
   };
 
   return (
-    <ScrollView
+    <Animated.ScrollView
       style={styles.container}
       showsVerticalScrollIndicator={false}
       stickyHeaderIndices={[0]}
+      onScroll={scrollHandler}
+      scrollEventThrottle={32}
     >
       <Header isTablet={isTablet} navigation={navigation} />
       <Hero isTablet={isTablet} horizontal={horizontal} />
-      <About isTablet={isTablet} horizontal={horizontal} />
-      <StatsSection isTablet={isTablet} horizontal={horizontal} />
-      <Appointment isTablet={isTablet} horizontal={horizontal} />
+      <About
+        isTablet={isTablet}
+        horizontal={horizontal}
+        scrollY={scrollY}
+        viewportHeight={height}
+        startOffset={aboutStart}
+      />
+      <StatsSection
+        isTablet={isTablet}
+        horizontal={horizontal}
+        scrollY={scrollY}
+        viewportHeight={height}
+        startOffset={statsStart}
+      />
+      <Appointment
+        isTablet={isTablet}
+        horizontal={horizontal}
+        scrollY={scrollY}
+        viewportHeight={height}
+        startOffset={appointmentStart}
+      />
       <Footer
         isTablet={isTablet}
         horizontal={horizontal}
         activeScreen={activeScreen}
         onNavigate={handleNavigate}
       />
-    </ScrollView>
+    </Animated.ScrollView>
   );
 };
 
@@ -187,14 +226,21 @@ const Hero = ({ isTablet, horizontal }) => (
     style={[styles.hero, { minHeight: isTablet ? 720 : 650 }]}
   >
     <View style={styles.heroOverlay} />
-    <View
+    <Animated.View
+      entering={FadeInUp.duration(760).delay(120).springify().damping(18)}
       style={[
         styles.heroContent,
         { paddingHorizontal: horizontal, width: isTablet ? '58%' : '100%' },
       ]}
     >
-      <Text style={styles.heroKicker}>Welcome to bespokes hair systems</Text>
-      <Text
+      <Animated.Text
+        entering={FadeInDown.duration(560).delay(220)}
+        style={styles.heroKicker}
+      >
+        Welcome to bespokes hair systems
+      </Animated.Text>
+      <Animated.Text
+        entering={FadeInUp.duration(620).delay(320)}
         style={[
           styles.heroTitle,
           { fontSize: isTablet ? 50 : 26, lineHeight: isTablet ? 58 : 35 },
@@ -202,27 +248,46 @@ const Hero = ({ isTablet, horizontal }) => (
       >
         We care for you and your hair,
         <Text style={styles.heroGold}> every step of the way.</Text>
-      </Text>
-      <Text style={styles.heroBody}>
+      </Animated.Text>
+      <Animated.Text
+        entering={FadeInUp.duration(620).delay(430)}
+        style={styles.heroBody}
+      >
         Expert-led hair loss solutions designed to restore confidence and
         deliver natural, lasting results. Care personalised to you, for men and
         women, young and old, bespoke hair systems offering guaranteed results.
-      </Text>
-    </View>
+      </Animated.Text>
+    </Animated.View>
   </ImageBackground>
 );
 
-const About = ({ isTablet, horizontal }) => (
-  <View
-    style={[
-      styles.about,
-      {
-        paddingHorizontal: horizontal,
-        flexDirection: isTablet ? 'row' : 'column',
-      },
-    ]}
-  >
-    <View style={[styles.aboutCopy, isTablet && styles.half]}>
+const About = ({ isTablet, horizontal, scrollY, viewportHeight, startOffset }) => {
+  const copyRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset,
+    translateY: 38,
+    initialScale: 0.98,
+  });
+  const imageRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset + 100,
+    translateY: 46,
+    initialScale: 0.95,
+  });
+
+  return (
+    <View
+      style={[
+        styles.about,
+        {
+          paddingHorizontal: horizontal,
+          flexDirection: isTablet ? 'row' : 'column',
+        },
+      ]}
+    >
+    <Animated.View style={[styles.aboutCopy, isTablet && styles.half, copyRevealStyle]}>
       <Text style={styles.sectionKicker}>Who we are</Text>
       <Text
         style={[
@@ -256,13 +321,14 @@ const About = ({ isTablet, horizontal }) => (
           body={'Mon-Wed : 10.00-18.00\nTues, Thurs - Sat 09.00 - 20.00'}
         />
       </View>
-    </View>
-    <View style={[styles.aboutImageWrap, isTablet && styles.half]}>
+    </Animated.View>
+    <Animated.View style={[styles.aboutImageWrap, isTablet && styles.half, imageRevealStyle]}>
       <View style={styles.dottedFrame} />
       <Image source={ASSETS.about} style={styles.aboutImage} />
-    </View>
+    </Animated.View>
   </View>
-);
+  );
+};
 
 const InfoBlock = ({ icon, title, body }) => (
   <View style={styles.infoBlock}>
@@ -276,15 +342,51 @@ const InfoBlock = ({ icon, title, body }) => (
   </View>
 );
 
-const StatsSection = ({ isTablet, horizontal }) => (
-  <>
+const StatsSection = ({
+  isTablet,
+  horizontal,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
+  const headingRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset,
+    translateY: 34,
+    initialScale: 0.98,
+  });
+  const panelRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset + 220,
+    translateY: 40,
+    initialScale: 0.96,
+  });
+  const logosRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset + 430,
+    translateY: 26,
+    initialScale: 0.98,
+  });
+  const bottomStatsRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset + 570,
+    translateY: 36,
+    initialScale: 0.96,
+  });
+
+  return (
+    <>
     <ImageBackground
       source={ASSETS.stats}
       resizeMode="cover"
       style={styles.statsHero}
     >
       <View style={styles.darkWash} />
-      <Text
+      <Animated.Text
         style={[
           styles.statsHeading,
           {
@@ -292,14 +394,17 @@ const StatsSection = ({ isTablet, horizontal }) => (
             fontSize: isTablet ? 50 : 30,
             lineHeight: isTablet ? 57 : 40,
           },
+          headingRevealStyle,
         ]}
       >
         We select the best suppliers worldwide and offer the very latest
         techniques.
-      </Text>
+      </Animated.Text>
     </ImageBackground>
 
-    <View style={[styles.statsPanel, { marginHorizontal: horizontal }]}>
+    <Animated.View
+      style={[styles.statsPanel, { marginHorizontal: horizontal }, panelRevealStyle]}
+    >
       {topStats.map(item => (
         <CounterCard
           key={item.label}
@@ -308,15 +413,21 @@ const StatsSection = ({ isTablet, horizontal }) => (
           compact={!isTablet}
         />
       ))}
-    </View>
+    </Animated.View>
 
-    <View style={styles.logoStrip}>
+    <Animated.View style={[styles.logoStrip, logosRevealStyle]}>
       {partnerImages.map((source, index) => (
         <Image key={index} source={source} style={styles.partnerImage} />
       ))}
-    </View>
+    </Animated.View>
 
-    <View style={[styles.bottomStats, { paddingHorizontal: horizontal }]}>
+    <Animated.View
+      style={[
+        styles.bottomStats,
+        { paddingHorizontal: horizontal },
+        bottomStatsRevealStyle,
+      ]}
+    >
       {bottomStats.map((item, index) => (
         <CounterCard
           key={item.label}
@@ -326,9 +437,10 @@ const StatsSection = ({ isTablet, horizontal }) => (
           fullWidth={index === bottomStats.length - 1}
         />
       ))}
-    </View>
+    </Animated.View>
   </>
-);
+  );
+};
 
 const CounterCard = ({ label, value, compact, fullWidth = false }) => (
   <View
@@ -344,20 +456,42 @@ const CounterCard = ({ label, value, compact, fullWidth = false }) => (
   </View>
 );
 
-const Appointment = ({ isTablet, horizontal }) => (
-  <ImageBackground
-    source={ASSETS.appointment}
-    resizeMode="cover"
-    style={[
-      styles.appointment,
-      {
-        paddingHorizontal: horizontal,
-        flexDirection: isTablet ? 'row' : 'column-reverse',
-      },
-    ]}
-  >
+const Appointment = ({
+  isTablet,
+  horizontal,
+  scrollY,
+  viewportHeight,
+  startOffset,
+}) => {
+  const formRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset,
+    translateY: 44,
+    initialScale: 0.96,
+  });
+  const copyRevealStyle = useRevealStyle({
+    scrollY,
+    viewportHeight,
+    startOffset: startOffset + 110,
+    translateY: 38,
+    initialScale: 0.98,
+  });
+
+  return (
+    <ImageBackground
+      source={ASSETS.appointment}
+      resizeMode="cover"
+      style={[
+        styles.appointment,
+        {
+          paddingHorizontal: horizontal,
+          flexDirection: isTablet ? 'row' : 'column-reverse',
+        },
+      ]}
+    >
     <View style={styles.appointmentOverlay} />
-    <View style={[styles.formCard, isTablet && styles.half]}>
+    <Animated.View style={[styles.formCard, isTablet && styles.half, formRevealStyle]}>
       <Text style={styles.formTitle}>Start Your Hair Transformation Today</Text>
       <Text style={styles.formIntro}>
         Share a few details and our friendly specialists will contact you to
@@ -386,8 +520,10 @@ const Appointment = ({ isTablet, horizontal }) => (
       <TouchableOpacity style={styles.submitButton} activeOpacity={0.85}>
         <Text style={styles.submitText}>Make Appointment</Text>
       </TouchableOpacity>
-    </View>
-    <View style={[styles.appointmentCopy, isTablet && styles.half]}>
+    </Animated.View>
+    <Animated.View
+      style={[styles.appointmentCopy, isTablet && styles.half, copyRevealStyle]}
+    >
       <Text
         style={[
           styles.appointmentTitle,
@@ -410,9 +546,10 @@ const Appointment = ({ isTablet, horizontal }) => (
         team will contact you to confirm your appointment at a time that suits
         you.
       </Text>
-    </View>
+    </Animated.View>
   </ImageBackground>
-);
+  );
+};
 
 const Footer = ({ isTablet, horizontal, activeScreen, onNavigate }) => (
   <View style={[styles.footer, { paddingHorizontal: horizontal }]}>
@@ -509,6 +646,61 @@ const FooterColumn = ({ title, links }) => (
     ))}
   </View>
 );
+
+const useRevealStyle = ({
+  scrollY,
+  viewportHeight,
+  startOffset,
+  translateY,
+  initialScale,
+}) =>
+  useAnimatedStyle(() => {
+    const viewportBottom = scrollY.value + viewportHeight;
+    const revealEnd = startOffset + viewportHeight * 0.42;
+
+    if (viewportBottom <= startOffset) {
+      return {
+        opacity: 0,
+        transform: [{ translateY }, { scale: initialScale }],
+      };
+    }
+
+    if (viewportBottom >= revealEnd) {
+      return {
+        opacity: 1,
+        transform: [{ translateY: 0 }, { scale: 1 }],
+      };
+    }
+
+    const progress = interpolate(
+      viewportBottom,
+      [startOffset, revealEnd],
+      [0, 1],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      opacity: interpolate(progress, [0, 1], [0, 1], Extrapolation.CLAMP),
+      transform: [
+        {
+          translateY: interpolate(
+            progress,
+            [0, 1],
+            [translateY, 0],
+            Extrapolation.CLAMP,
+          ),
+        },
+        {
+          scale: interpolate(
+            progress,
+            [0, 1],
+            [initialScale, 1],
+            Extrapolation.CLAMP,
+          ),
+        },
+      ],
+    };
+  });
 
 const styles = StyleSheet.create({
   container: {
