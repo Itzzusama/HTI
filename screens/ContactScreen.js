@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
+  Alert,
   Image,
   ImageBackground,
   Linking,
@@ -222,8 +223,31 @@ const ContactFormSection = ({
   viewportHeight,
   startOffset,
 }) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [message, setMessage] = useState('');
+
   const openMap = () => {
     Linking.openURL(LOCATION.mapsUrl);
+  };
+
+  const handleSendMessage = () => {
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      Alert.alert('Required Fields', 'Please fill in Name, Email, and Message.');
+      return;
+    }
+
+    const recipient = 'info@hairtechnology.co.uk';
+    const subject = encodeURIComponent(`Contact Form Submission from ${name}`);
+    const body = encodeURIComponent(
+      `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`,
+    );
+    const mailtoUrl = `mailto:${recipient}?subject=${subject}&body=${body}`;
+
+    Linking.openURL(mailtoUrl).catch(() =>
+      Alert.alert('Error', 'Unable to open email client.'),
+    );
   };
 
   const formRevealStyle = useRevealStyle({
@@ -273,29 +297,53 @@ const ContactFormSection = ({
         </Text>
 
         <View style={styles.fieldsWrap}>
-          {formFields.map((field, index) => (
-            <Animated.View
-              key={field.label}
-              entering={FadeInUp.duration(520).delay(260 + index * 90)}
-              style={[
-                styles.fieldGroup,
-                field.half && isDesktop ? styles.fieldHalf : styles.fieldFull,
-              ]}
-            >
-              <Text style={styles.fieldLabel}>{field.label}</Text>
-              <TextInput
-                placeholder={field.placeholder}
-                placeholderTextColor={COLORS.label}
-                multiline={field.multiline}
-                textAlignVertical={field.multiline ? 'top' : 'center'}
-                style={[styles.input, field.multiline && styles.messageInput]}
-              />
-            </Animated.View>
-          ))}
+          {formFields.map((field, index) => {
+            let value = '';
+            let onChangeText = () => {};
+            if (field.label === 'Name') {
+              value = name;
+              onChangeText = setName;
+            } else if (field.label === 'Email') {
+              value = email;
+              onChangeText = setEmail;
+            } else if (field.label === 'Phone') {
+              value = phone;
+              onChangeText = setPhone;
+            } else if (field.label === 'Message') {
+              value = message;
+              onChangeText = setMessage;
+            }
+
+            return (
+              <Animated.View
+                key={field.label}
+                entering={FadeInUp.duration(520).delay(260 + index * 90)}
+                style={[
+                  styles.fieldGroup,
+                  field.half && isDesktop ? styles.fieldHalf : styles.fieldFull,
+                ]}
+              >
+                <Text style={styles.fieldLabel}>{field.label}</Text>
+                <TextInput
+                  placeholder={field.placeholder}
+                  placeholderTextColor={COLORS.label}
+                  multiline={field.multiline}
+                  textAlignVertical={field.multiline ? 'top' : 'center'}
+                  style={[styles.input, field.multiline && styles.messageInput]}
+                  value={value}
+                  onChangeText={onChangeText}
+                />
+              </Animated.View>
+            );
+          })}
         </View>
 
         <Animated.View entering={FadeInUp.duration(540).delay(660)}>
-          <TouchableOpacity style={styles.submitButton} activeOpacity={0.82}>
+          <TouchableOpacity
+            style={styles.submitButton}
+            activeOpacity={0.82}
+            onPress={handleSendMessage}
+          >
             <Text style={styles.submitIcon}>@</Text>
             <Text style={styles.submitText}>Send Message</Text>
           </TouchableOpacity>

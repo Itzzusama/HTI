@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Image,
   ImageBackground,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -514,7 +515,11 @@ const PartnersSection = ({
       >
         Working with our professional partners:
       </Animated.Text>
-      <View style={styles.logoGrid}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.logoScroll}
+      >
         {partnerLogos.map((source, index) => (
           <PartnerLogo
             key={index}
@@ -525,7 +530,7 @@ const PartnersSection = ({
             startOffset={startOffset + 90 + index * 20}
           />
         ))}
-      </View>
+      </ScrollView>
       <Animated.Image
         source={ASSETS.globe}
         style={[
@@ -1000,13 +1005,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0,
     marginBottom: 24,
   },
-  logoGrid: {
-    width: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  logoScroll: {
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 20,
+    paddingHorizontal: 10,
     marginBottom: 20,
   },
   logoTile: {

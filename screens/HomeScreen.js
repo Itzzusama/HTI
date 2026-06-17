@@ -765,6 +765,7 @@ const styles = StyleSheet.create({
   },
   heroContent: {
     zIndex: 2,
+    width: '100%',
   },
   heroKicker: {
     fontFamily: 'Poppins',
@@ -774,7 +775,8 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
-    marginBottom: 12,
+    // marginBottom: 12,
+    width: '100%',
   },
   heroTitle: {
     fontFamily: 'Urbanist',
@@ -783,6 +785,7 @@ const styles = StyleSheet.create({
     lineHeight: 58,
     textTransform: 'capitalize',
     marginBottom: 18,
+    width: '100%',
   },
   heroGold: {
     color: COLORS.gold,
