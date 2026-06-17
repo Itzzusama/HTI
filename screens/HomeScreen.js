@@ -118,43 +118,46 @@ const HomeScreen = ({ activeScreen = 'Home', onNavigate, navigation }) => {
   };
 
   return (
-    <Animated.ScrollView
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      stickyHeaderIndices={[0]}
-      onScroll={scrollHandler}
-      scrollEventThrottle={32}
-    >
+    <View style={styles.container}>
       <Header isTablet={isTablet} navigation={navigation} />
-      <Hero isTablet={isTablet} horizontal={horizontal} />
-      <About
-        isTablet={isTablet}
-        horizontal={horizontal}
-        scrollY={scrollY}
-        viewportHeight={height}
-        startOffset={aboutStart}
-      />
-      <StatsSection
-        isTablet={isTablet}
-        horizontal={horizontal}
-        scrollY={scrollY}
-        viewportHeight={height}
-        startOffset={statsStart}
-      />
-      <Appointment
-        isTablet={isTablet}
-        horizontal={horizontal}
-        scrollY={scrollY}
-        viewportHeight={height}
-        startOffset={appointmentStart}
-      />
-      <Footer
-        isTablet={isTablet}
-        horizontal={horizontal}
-        activeScreen={activeScreen}
-        onNavigate={handleNavigate}
-      />
-    </Animated.ScrollView>
+      <Animated.ScrollView
+        style={{flex: 1}}
+        showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
+        scrollEventThrottle={32}
+      >
+        <Hero isTablet={isTablet} horizontal={horizontal} />
+        <About
+          isTablet={isTablet}
+          horizontal={horizontal}
+          scrollY={scrollY}
+          viewportHeight={height}
+          startOffset={aboutStart}
+        />
+        <StatsSection
+          isTablet={isTablet}
+          horizontal={horizontal}
+          scrollY={scrollY}
+          viewportHeight={height}
+          startOffset={statsStart}
+        />
+        <Appointment
+          isTablet={isTablet}
+          horizontal={horizontal}
+          scrollY={scrollY}
+          viewportHeight={height}
+          startOffset={appointmentStart}
+          navigation={navigation}
+        />
+        <Footer
+          isTablet={isTablet}
+          horizontal={horizontal}
+          activeScreen={activeScreen}
+          onNavigate={handleNavigate}
+        />
+        <View style={{height: 24}} />
+      </Animated.ScrollView>
+    </View>
   );
 };
 
@@ -462,6 +465,7 @@ const Appointment = ({
   scrollY,
   viewportHeight,
   startOffset,
+  navigation,
 }) => {
   const formRevealStyle = useRevealStyle({
     scrollY,
@@ -517,7 +521,7 @@ const Appointment = ({
           </View>
         ))}
       </View>
-      <TouchableOpacity style={styles.submitButton} activeOpacity={0.85}>
+      <TouchableOpacity style={styles.submitButton} activeOpacity={0.85} onPress={() => navigation.navigate('Contact')}>
         <Text style={styles.submitText}>Make Appointment</Text>
       </TouchableOpacity>
     </Animated.View>

@@ -42,17 +42,19 @@ const AboutUsScreen = ({ navigation }) => {
   const isDesktop = width >= 1025;
 
   return (
-    <ScrollView
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      stickyHeaderIndices={[0]}
-    >
+    <View style={styles.container}>
       <Header isTablet={isTablet} navigation={navigation} />
-      <PageHero isTablet={isTablet} />
-      <AboutSection isTablet={isTablet} isDesktop={isDesktop} />
-      <BeforeAfterSection isTablet={isTablet} />
-      <PromiseSection isTablet={isTablet} isDesktop={isDesktop} />
-    </ScrollView>
+      <ScrollView
+        style={{flex: 1}}
+        showsVerticalScrollIndicator={false}
+      >
+        <PageHero isTablet={isTablet} />
+        <AboutSection isTablet={isTablet} isDesktop={isDesktop} />
+        <BeforeAfterSection isTablet={isTablet} />
+        <PromiseSection isTablet={isTablet} isDesktop={isDesktop} />
+        <View style={{height: 24}} />
+      </ScrollView>
+    </View>
   );
 };
 

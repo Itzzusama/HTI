@@ -93,30 +93,32 @@ const ContactScreen = ({ navigation }) => {
   const infoStart = formStart + formSectionHeight;
 
   return (
-    <Animated.ScrollView
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      stickyHeaderIndices={[0]}
-      onScroll={scrollHandler}
-      scrollEventThrottle={16}
-    >
+    <View style={styles.container}>
       <Header isTablet={isTablet} navigation={navigation} />
-      <PageHero title="Contact Us" isTablet={isTablet} />
-      <ContactFormSection
-        isTablet={isTablet}
-        isDesktop={isDesktop}
-        scrollY={scrollY}
-        viewportHeight={height}
-        startOffset={formStart}
-      />
-      <ContactInfoBand
-        isTablet={isTablet}
-        isDesktop={isDesktop}
-        scrollY={scrollY}
-        viewportHeight={height}
-        startOffset={infoStart}
-      />
-    </Animated.ScrollView>
+      <Animated.ScrollView
+        style={{flex: 1}}
+        showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+      >
+        <PageHero title="Contact Us" isTablet={isTablet} />
+        <ContactFormSection
+          isTablet={isTablet}
+          isDesktop={isDesktop}
+          scrollY={scrollY}
+          viewportHeight={height}
+          startOffset={formStart}
+        />
+        <ContactInfoBand
+          isTablet={isTablet}
+          isDesktop={isDesktop}
+          scrollY={scrollY}
+          viewportHeight={height}
+          startOffset={infoStart}
+        />
+        <View style={{height: 24}} />
+      </Animated.ScrollView>
+    </View>
   );
 };
 
@@ -472,7 +474,7 @@ const InfoCard = ({
         styles.infoCard,
         {
           padding: isTablet ? 50 : 30,
-          paddingBottom: card.title === 'Call Us' && 45,
+          paddingBottom: card.title === 'Call Us' ? 45 : 16,
           alignItems: isTablet ? 'stretch' : 'center',
         },
         cardRevealStyle,

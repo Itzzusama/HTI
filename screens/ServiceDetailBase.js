@@ -52,17 +52,19 @@ const ServiceDetailBase = ({ navigation, data }) => {
   const isDesktop = width >= 1025;
 
   return (
-    <ScrollView
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      stickyHeaderIndices={[0]}
-    >
+    <View style={styles.container}>
       <Header isTablet={isTablet} navigation={navigation} />
-      <PageHero title={data.title} isTablet={isTablet} />
-      <IntroSection data={data} isTablet={isTablet} isDesktop={isDesktop} />
-      <FeatureSection data={data} isTablet={isTablet} />
-      <CtaSection data={data} isTablet={isTablet} navigation={navigation} />
-    </ScrollView>
+      <ScrollView
+        style={{flex: 1}}
+        showsVerticalScrollIndicator={false}
+      >
+        <PageHero title={data.title} isTablet={isTablet} />
+        <IntroSection data={data} isTablet={isTablet} isDesktop={isDesktop} />
+        <FeatureSection data={data} isTablet={isTablet} />
+        <CtaSection data={data} isTablet={isTablet} navigation={navigation} />
+        <View style={{height: 24}} />
+      </ScrollView>
+    </View>
   );
 };
 

@@ -103,40 +103,42 @@ const MakeDifferScreen = ({ navigation }) => {
     (isDesktop ? 112 : isTablet ? 64 : 50);
 
   return (
-    <Animated.ScrollView
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      stickyHeaderIndices={[0]}
-      onScroll={scrollHandler}
-      scrollEventThrottle={16}
-    >
+    <View style={styles.container}>
       <Header isTablet={isTablet} navigation={navigation} />
-      <Hero isTablet={isTablet} isDesktop={isDesktop} />
-      <WhyChooseSection
-        isTablet={isTablet}
-        isDesktop={isDesktop}
-        scrollY={scrollY}
-        viewportHeight={height}
-        startOffset={whyCardTop}
-        cardRowHeight={cardRowHeight}
-      />
-      <CraftSection
-        isTablet={isTablet}
-        isDesktop={isDesktop}
-        navigation={navigation}
-        scrollY={scrollY}
-        viewportHeight={height}
-        startOffset={craftStart}
-      />
-      <BottomCta
-        isTablet={isTablet}
-        isDesktop={isDesktop}
-        navigation={navigation}
-        scrollY={scrollY}
-        viewportHeight={height}
-        startOffset={ctaStart}
-      />
-    </Animated.ScrollView>
+      <Animated.ScrollView
+        style={{flex: 1}}
+        showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+      >
+        <Hero isTablet={isTablet} isDesktop={isDesktop} />
+        <WhyChooseSection
+          isTablet={isTablet}
+          isDesktop={isDesktop}
+          scrollY={scrollY}
+          viewportHeight={height}
+          startOffset={whyCardTop}
+          cardRowHeight={cardRowHeight}
+        />
+        <CraftSection
+          isTablet={isTablet}
+          isDesktop={isDesktop}
+          navigation={navigation}
+          scrollY={scrollY}
+          viewportHeight={height}
+          startOffset={craftStart}
+        />
+        <BottomCta
+          isTablet={isTablet}
+          isDesktop={isDesktop}
+          navigation={navigation}
+          scrollY={scrollY}
+          viewportHeight={height}
+          startOffset={ctaStart}
+        />
+        <View style={{height: 24}} />
+      </Animated.ScrollView>
+    </View>
   );
 };
 

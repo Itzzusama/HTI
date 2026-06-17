@@ -69,15 +69,17 @@ const TestimonialScreen = ({ navigation }) => {
   const isTablet = width >= 768;
 
   return (
-    <ScrollView
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      stickyHeaderIndices={[0]}
-    >
+    <View style={styles.container}>
       <Header isTablet={isTablet} navigation={navigation} />
-      <PageHero isTablet={isTablet} />
-      <TestimonialsSection isTablet={isTablet} />
-    </ScrollView>
+      <ScrollView
+        style={{flex: 1}}
+        showsVerticalScrollIndicator={false}
+      >
+        <PageHero isTablet={isTablet} />
+        <TestimonialsSection isTablet={isTablet} />
+        <View style={{height: 24}} />
+      </ScrollView>
+    </View>
   );
 };
 

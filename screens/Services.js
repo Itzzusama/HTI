@@ -131,45 +131,47 @@ const Services = ({ navigation }) => {
   const whyStart = partnersStart + partnersHeight;
 
   return (
-    <Animated.ScrollView
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      stickyHeaderIndices={[0]}
-      onScroll={scrollHandler}
-      scrollEventThrottle={32}
-    >
+    <View style={styles.container}>
       <Header isTablet={isTablet} navigation={navigation} />
-      <PageHero isTablet={isTablet} />
-      <IntroSection
-        isTablet={isTablet}
-        isDesktop={isDesktop}
-        scrollY={scrollY}
-        viewportHeight={height}
-        startOffset={introStart}
-      />
-      <ServicesGrid
-        isTablet={isTablet}
-        isDesktop={isDesktop}
-        navigation={navigation}
-        scrollY={scrollY}
-        viewportHeight={height}
-        startOffset={servicesStart}
-      />
-      <PartnersSection
-        isTablet={isTablet}
-        isDesktop={isDesktop}
-        scrollY={scrollY}
-        viewportHeight={height}
-        startOffset={partnersStart}
-      />
-      <WhyChooseSection
-        isTablet={isTablet}
-        isDesktop={isDesktop}
-        scrollY={scrollY}
-        viewportHeight={height}
-        startOffset={whyStart}
-      />
-    </Animated.ScrollView>
+      <Animated.ScrollView
+        style={{flex: 1}}
+        showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
+        scrollEventThrottle={32}
+      >
+        <PageHero isTablet={isTablet} />
+        <IntroSection
+          isTablet={isTablet}
+          isDesktop={isDesktop}
+          scrollY={scrollY}
+          viewportHeight={height}
+          startOffset={introStart}
+        />
+        <ServicesGrid
+          isTablet={isTablet}
+          isDesktop={isDesktop}
+          navigation={navigation}
+          scrollY={scrollY}
+          viewportHeight={height}
+          startOffset={servicesStart}
+        />
+        <PartnersSection
+          isTablet={isTablet}
+          isDesktop={isDesktop}
+          scrollY={scrollY}
+          viewportHeight={height}
+          startOffset={partnersStart}
+        />
+        <WhyChooseSection
+          isTablet={isTablet}
+          isDesktop={isDesktop}
+          scrollY={scrollY}
+          viewportHeight={height}
+          startOffset={whyStart}
+        />
+        <View style={{height: 24}} />
+      </Animated.ScrollView>
+    </View>
   );
 };
 
