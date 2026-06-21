@@ -1,4 +1,4 @@
-package com.hti
+package com.htis.app
 
 import android.app.Application
 import com.facebook.react.PackageList
